@@ -182,9 +182,3 @@ The **Online Product Lowest Prices Prediction System** bridges a critical gap in
 Future work could explore **personalized recommendations**, **cross-platform price arbitrage**, or **integration with virtual assistants** (e.g., "Alexa, when will this TV be cheapest?").
 
 ---
----
-### **Next Steps**
-1. **Finalize the project scope** (e.g., specific platforms/categories to target).
-2. **Begin data collection** (start with 1–2 platforms for proof of concept).
-3. **Prototype the ML model** (test simple time-series models first).
-4. **Design the UI/UX wireframes** (Figma or similar tools).
