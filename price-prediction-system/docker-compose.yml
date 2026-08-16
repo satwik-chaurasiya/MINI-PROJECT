@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # 1. FastAPI Application Layer
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pricespy_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    volumes:
+      - ./ml_engine/data:/app/ml_engine/data
+
+  # 2. React User Interface Layer
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pricespy_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  # 3. Redis In-Memory Cache
+  redis:
+    image: redis:7-alpine
+    container_name: pricespy_redis
+    ports:
+      - "6379:6379"
