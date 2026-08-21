@@ -138,211 +138,211 @@
       "date": "Aug 16",
       "historical": null,
       "predicted": 76930.36,
-      "lower": 75260.29,
-      "upper": 78778.41
+      "lower": 75175.36,
+      "upper": 78593.39
     },
     {
       "date": "Aug 17",
       "historical": null,
       "predicted": 77152.75,
-      "lower": 75485.34,
-      "upper": 78977.8
+      "lower": 75376.16,
+      "upper": 78999.25
     },
     {
       "date": "Aug 18",
       "historical": null,
       "predicted": 77436.08,
-      "lower": 75726.28,
-      "upper": 79297.73
+      "lower": 75783.71,
+      "upper": 79174.13
     },
     {
       "date": "Aug 19",
       "historical": null,
       "predicted": 77517.7,
-      "lower": 75869.89,
-      "upper": 79343.31
+      "lower": 75934.6,
+      "upper": 79223.52
     },
     {
       "date": "Aug 20",
       "historical": null,
       "predicted": 77607.12,
-      "lower": 75795.2,
-      "upper": 79249.36
+      "lower": 75852.04,
+      "upper": 79398.69
     },
     {
       "date": "Aug 21",
       "historical": null,
       "predicted": 77879.15,
-      "lower": 76166.11,
-      "upper": 79609.17
+      "lower": 76139.07,
+      "upper": 79524.82
     },
     {
       "date": "Aug 22",
       "historical": null,
       "predicted": 78050.64,
-      "lower": 76216.46,
-      "upper": 79786.54
+      "lower": 76449.34,
+      "upper": 79817.45
     },
     {
       "date": "Aug 23",
       "historical": null,
       "predicted": 78245.4,
-      "lower": 76446.09,
-      "upper": 79906.24
+      "lower": 76507.36,
+      "upper": 79920.37
     },
     {
       "date": "Aug 24",
       "historical": null,
       "predicted": 78529.75,
-      "lower": 76835.19,
-      "upper": 80289.47
+      "lower": 76746.49,
+      "upper": 80304.47
     },
     {
       "date": "Aug 25",
       "historical": null,
       "predicted": 78860.9,
-      "lower": 77074.23,
-      "upper": 80574.0
+      "lower": 77060.79,
+      "upper": 80636.14
     },
     {
       "date": "Aug 26",
       "historical": null,
       "predicted": 78975.25,
-      "lower": 77158.49,
-      "upper": 80687.41
+      "lower": 77323.28,
+      "upper": 80739.1
     },
     {
       "date": "Aug 27",
       "historical": null,
       "predicted": 79081.66,
-      "lower": 77265.25,
-      "upper": 80829.01
+      "lower": 77378.83,
+      "upper": 80868.85
     },
     {
       "date": "Aug 28",
       "historical": null,
       "predicted": 79354.52,
-      "lower": 77653.29,
-      "upper": 81148.35
+      "lower": 77516.27,
+      "upper": 81042.17
     },
     {
       "date": "Aug 29",
       "historical": null,
       "predicted": 79510.54,
-      "lower": 77871.42,
-      "upper": 81243.42
+      "lower": 77735.75,
+      "upper": 81211.43
     },
     {
       "date": "Aug 30",
       "historical": null,
       "predicted": 79673.67,
-      "lower": 77801.92,
-      "upper": 81388.08
+      "lower": 77977.54,
+      "upper": 81491.44
     },
     {
       "date": "Aug 31",
       "historical": null,
       "predicted": 79910.64,
-      "lower": 78122.86,
-      "upper": 81613.39
+      "lower": 78264.76,
+      "upper": 81608.86
     },
     {
       "date": "Sep 01",
       "historical": null,
       "predicted": 80179.33,
-      "lower": 78417.22,
-      "upper": 81896.41
+      "lower": 78381.82,
+      "upper": 81935.93
     },
     {
       "date": "Sep 02",
       "historical": null,
       "predicted": 80217.07,
-      "lower": 78507.6,
-      "upper": 81804.02
+      "lower": 78653.79,
+      "upper": 81958.33
     },
     {
       "date": "Sep 03",
       "historical": null,
       "predicted": 80233.84,
-      "lower": 78508.32,
-      "upper": 81854.74
+      "lower": 78573.25,
+      "upper": 81971.32
     },
     {
       "date": "Sep 04",
       "historical": null,
       "predicted": 80405.38,
-      "lower": 78645.39,
-      "upper": 82257.87
+      "lower": 78627.37,
+      "upper": 82059.07
     },
     {
       "date": "Sep 05",
       "historical": null,
       "predicted": 80449.91,
-      "lower": 78757.33,
-      "upper": 82296.32
+      "lower": 78787.09,
+      "upper": 82073.19
     },
     {
       "date": "Sep 06",
       "historical": null,
       "predicted": 80493.03,
-      "lower": 78584.81,
-      "upper": 82234.93
+      "lower": 78738.81,
+      "upper": 82323.11
     },
     {
       "date": "Sep 07",
       "historical": null,
       "predicted": 80603.19,
-      "lower": 78790.86,
-      "upper": 82385.82
+      "lower": 78933.71,
+      "upper": 82393.8
     },
     {
       "date": "Sep 08",
       "historical": null,
       "predicted": 80740.09,
-      "lower": 78994.21,
-      "upper": 82519.76
+      "lower": 79033.49,
+      "upper": 82512.22
     },
     {
       "date": "Sep 09",
       "historical": null,
       "predicted": 80642.87,
-      "lower": 78891.34,
-      "upper": 82327.86
+      "lower": 78841.47,
+      "upper": 82430.47
     },
     {
       "date": "Sep 10",
       "historical": null,
       "predicted": 80523.35,
-      "lower": 78802.01,
-      "upper": 82314.18
+      "lower": 78717.95,
+      "upper": 82224.55
     },
     {
       "date": "Sep 11",
       "historical": null,
       "predicted": 80559.01,
-      "lower": 78829.06,
-      "upper": 82164.49
+      "lower": 78805.87,
+      "upper": 82235.96
     },
     {
       "date": "Sep 12",
       "historical": null,
       "predicted": 80469.76,
-      "lower": 78787.06,
-      "upper": 82200.69
+      "lower": 78715.76,
+      "upper": 82204.24
     },
     {
       "date": "Sep 13",
       "historical": null,
       "predicted": 80382.76,
-      "lower": 78720.93,
-      "upper": 82098.46
+      "lower": 78608.01,
+      "upper": 82042.69
     },
     {
       "date": "Sep 14",
       "historical": null,
       "predicted": 80367.88,
-      "lower": 78690.93,
-      "upper": 82013.83
+      "lower": 78471.86,
+      "upper": 82078.36
     }
   ]
 }
