@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PriceSpy — Final Project Presentation (Fully Animated)</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #121829;
+      --card-border: #1e293b;
+      --accent-blue: #38bdf8;
+      --accent-green: #34d399;
+      --accent-amber: #fbbf24;
+      --accent-red: #f87171;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Progress Bar */
+    #progress-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      z-index: 100;
+    }
+
+    #progress-bar {
+      height: 100%;
+      width: 9%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+      transition: width 0.4s ease;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+    }
+
+    /* Presentation Header */
+    header {
+      position: fixed;
+      top: 12px;
+      left: 32px;
+      right: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      color: var(--accent-blue);
+    }
+
+    .slide-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: var(--accent-blue);
+      letter-spacing: 0.05em;
+    }
+
+    /* Main Slide Stage */
+    #slide-viewport {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 40px;
+      perspective: 1200px;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      width: 90%;
+      max-width: 1200px;
+      height: 82vh;
+      background: rgba(18, 24, 41, 0.7);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 48px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      opacity: 0;
+      transform: scale(0.94) translateY(30px);
+      pointer-events: none;
+      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Animated Typography & Elements */
+    .slide-header {
+      margin-bottom: 24px;
+    }
+
+    .slide-tag {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent-blue);
+      margin-bottom: 8px;
+    }
+
+    .slide-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .slide-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    /* Content Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      flex: 1;
+      align-items: stretch;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+      flex: 1;
+      align-items: stretch;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      flex: 1;
+      align-items: stretch;
+    }
+
+    /* Feature Cards with hover glow */
+    .card {
+      background: rgba(26, 34, 56, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-icon {
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+
+    .card-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .card-list {
+      list-style: none;
+      margin-top: 10px;
+    }
+
+    .card-list li {
+      position: relative;
+      padding-left: 18px;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .card-list li::before {
+      content: "•";
+      color: var(--accent-blue);
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+
+    /* KPI Number Counter Cards */
+    .kpi-card {
+      background: rgba(26, 34, 56, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .kpi-val {
+      font-size: 3rem;
+      font-weight: 800;
+      font-family: ui-monospace, monospace;
+      color: var(--accent-green);
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .kpi-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .kpi-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Interactive Live Chart Preview */
+    .chart-container {
+      background: #0d1220;
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+
+    .svg-chart {
+      width: 100%;
+      height: 220px;
+    }
+
+    .chart-line {
+      fill: none;
+      stroke: var(--accent-blue);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      animation: drawLine 2s forwards ease-in-out;
+    }
+
+    @keyframes drawLine {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* Verdict Badge */
+    .verdict-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+    }
+
+    .verdict-wait {
+      background: rgba(251, 191, 36, 0.15);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      color: var(--accent-amber);
+    }
+
+    .pulse {
+      animation: pulseGlow 2s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.05); }
+    }
+
+    /* Title Slide Special Styles */
+    .hero-slide {
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at center, rgba(56, 189, 248, 0.08) 0%, rgba(18, 24, 41, 0.9) 70%);
+    }
+
+    .hero-title {
+      font-size: 4.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #ffffff 30%, var(--accent-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-subtitle {
+      font-size: 1.4rem;
+      color: var(--text-main);
+      max-width: 750px;
+      margin: 0 auto 20px;
+      font-weight: 500;
+    }
+
+    .hero-badge-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .tech-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Bottom Control Bar */
+    footer {
+      position: fixed;
+      bottom: 16px;
+      left: 32px;
+      right: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 50;
+    }
+
+    .timer-display {
+      font-size: 0.85rem;
+      font-family: ui-monospace, monospace;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
+      padding: 8px 18px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      color: #090d16;
+      border-color: var(--accent-blue);
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      background: #7dd3fc;
+      color: #090d16;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    }
+
+    /* Presenter Notes Drawer */
+    #notes-drawer {
+      position: fixed;
+      bottom: 60px;
+      right: 32px;
+      width: 380px;
+      max-height: 260px;
+      background: #0f172a;
+      border: 1px solid var(--accent-blue);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      transform: translateY(120%);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 90;
+      overflow-y: auto;
+    }
+
+    #notes-drawer.open {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .notes-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-blue);
+      font-weight: 800;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .notes-content {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    /* Confetti Particle Canvas */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 99;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+
+  <header>
+    <div class="brand">
+      <span>📊 PriceSpy</span>
+      <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">| Final Project Presentation</span>
+    </div>
+    <div class="slide-badge" id="slide-counter">SLIDE 1 / 11</div>
+  </header>
+
+  <main id="slide-viewport">
+
+    <!-- SLIDE 1: Title Slide -->
+    <div class="slide active hero-slide" data-notes="Welcome the evaluators and audience. Introduce PriceSpy as an AI-powered system that prevents buyers from overpaying online by using Machine Learning to predict e-commerce price drops.">
+      <div class="slide-tag" style="color: var(--accent-green); font-size: 0.9rem;">FINAL PROJECT PRESENTATION</div>
+      <h1 class="hero-title">PriceSpy</h1>
+      <p class="hero-subtitle">AI-Powered E-Commerce Price Prediction & Tracking System</p>
+      <p style="color: var(--text-muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto 24px;">
+        Empowering online consumers with predictive intelligence to know whether to <strong>BUY NOW</strong> or <strong>WAIT</strong> for price drops.
+      </p>
+      <div class="hero-badge-row">
+        <span class="tech-pill">⚡ FastAPI</span>
+        <span class="tech-pill">⚛️ React 19</span>
+        <span class="tech-pill">📈 Facebook Prophet</span>
+        <span class="tech-pill">🎨 Tailwind CSS</span>
+        <span class="tech-pill">🐳 Docker Compose</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: Problem Statement -->
+    <div class="slide" data-notes="Explain the core consumer pain point. Dynamic pricing algorithms at Amazon and Flipkart manipulate prices dynamically. Existing tools like Keepa only show historical data, leaving buyers unsure if a price will drop tomorrow.">
+      <div class="slide-header">
+        <span class="slide-tag">THE PROBLEM STATEMENT</span>
+        <h2 class="slide-title">The Dynamic Pricing Trap in E-Commerce</h2>
+        <p class="slide-subtitle">Why consumers consistently overpay for high-ticket electronics.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-icon">📉</div>
+          <h3 class="card-title">Algorithmic Volatility</h3>
+          <p class="card-desc">E-commerce giants change prices thousands of times each day based on algorithmic demand repricing, causing price spikes without warning.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🤷‍♂️</div>
+          <h3 class="card-title">Buyer Hesitation</h3>
+          <p class="card-desc">Consumers are paralyzed by indecision: <em>'Is this genuine discount real, or will it drop another ₹3,000 next weekend during a festival sale?'</em></p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🚗</div>
+          <h3 class="card-title">Rearview-Mirror Tools</h3>
+          <p class="card-desc">Existing price trackers only show <strong>past historical graphs</strong>. Looking in the rearview mirror does not predict where prices will move in the next 15 days.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: Proposed Solution -->
+    <div class="slide" data-notes="Present the PriceSpy solution: we don't just track, we FORECAST future prices across 7, 15, and 30-day horizons with a definitive BUY or WAIT recommendation.">
+      <div class="slide-header">
+        <span class="slide-tag">PROJECT OBJECTIVES</span>
+        <h2 class="slide-title">The Solution: Predictive Intelligence</h2>
+        <p class="slide-subtitle">How PriceSpy transforms raw pricing data into actionable buying decisions.</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-icon">🕸️</div>
+          <h3 class="card-title">1. Real-Time Price Harvesting</h3>
+          <ul class="card-list">
+            <li>Scrapes real-time listings, prices, and imagery from Amazon & Flipkart.</li>
+            <li>Resilient 3-tier fallback architecture prevents scraper blockages.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-icon">📈</div>
+          <h3 class="card-title">2. Time-Series Forecasting</h3>
+          <ul class="card-list">
+            <li>Facebook Prophet additive modeling over 7, 15, and 30-day horizons.</li>
+            <li>Generates 80% confidence interval bands to assess price uncertainty.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-icon">⏳</div>
+          <h3 class="card-title">3. Actionable Buy Verdict Engine</h3>
+          <ul class="card-list">
+            <li>Outputs unequivocal recommendations: <strong>BUY NOW</strong> vs <strong>WAIT</strong>.</li>
+            <li>Pinpoints expected lowest price point and optimal purchase dates.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔔</div>
+          <h3 class="card-title">4. Watchlists & Automated Alerts</h3>
+          <ul class="card-list">
+            <li>Target price drop threshold monitoring with email dispatching.</li>
+            <li>Full user dashboard and real-time administrator telemetry.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Architecture -->
+    <div class="slide" data-notes="Walk through the system architecture. Mention the 4 tiers: React 19 Frontend with Recharts, FastAPI asynchronous backend, Facebook Prophet ML Engine, and Redis caching.">
+      <div class="slide-header">
+        <span class="slide-tag">TECHNICAL ARCHITECTURE</span>
+        <h2 class="slide-title">End-to-End System Architecture</h2>
+        <p class="slide-subtitle">Modular, decoupled multi-service pipeline containerized with Docker.</p>
+      </div>
+      <div class="grid-4">
+        <div class="card">
+          <span style="color: var(--accent-blue); font-size: 0.8rem; font-weight: bold;">LAYER 1</span>
+          <h3 class="card-title" style="margin-top: 6px;">Frontend Client</h3>
+          <ul class="card-list">
+            <li>React 19 SPA</li>
+            <li>Tailwind CSS</li>
+            <li>Recharts Forecast Band</li>
+            <li>Lucide Icons</li>
+            <li>Multi-Theme Engine</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span style="color: var(--accent-green); font-size: 0.8rem; font-weight: bold;">LAYER 2</span>
+          <h3 class="card-title" style="margin-top: 6px;">API Gateway</h3>
+          <ul class="card-list">
+            <li>FastAPI (Asynchronous)</li>
+            <li>Pydantic v2 Models</li>
+            <li>Bcrypt & JWT Auth</li>
+            <li>Live Scraper Manager</li>
+            <li>Alert Dispatcher</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span style="color: var(--accent-amber); font-size: 0.8rem; font-weight: bold;">LAYER 3</span>
+          <h3 class="card-title" style="margin-top: 6px;">Machine Learning</h3>
+          <ul class="card-list">
+            <li>Facebook Prophet</li>
+            <li>Additive Seasonality</li>
+            <li>Horizon Predictions</li>
+            <li>Data Synthesizer</li>
+            <li>Accuracy Evaluator</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span style="color: var(--accent-blue); font-size: 0.8rem; font-weight: bold;">LAYER 4</span>
+          <h3 class="card-title" style="margin-top: 6px;">Storage & Cache</h3>
+          <ul class="card-list">
+            <li>Redis 7 In-Memory Cache</li>
+            <li>Historical CSV Series</li>
+            <li>SQLAlchemy Schemas</li>
+            <li>Docker Orchestration</li>
+            <li>Zero-Downtime Design</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Machine Learning Engine -->
+    <div class="slide" data-notes="Explain the mathematical formulation of Facebook Prophet: y(t) = g(t) + s(t) + h(t) + e(t). Emphasize why it beats simple regression: it decomposes trends, weekly/yearly seasonality, and festival sale shocks.">
+      <div class="slide-header">
+        <span class="slide-tag">MACHINE LEARNING</span>
+        <h2 class="slide-title">Predictive Modeling: Facebook Prophet</h2>
+        <p class="slide-subtitle">Why an additive decomposable time-series model outperforms standard regression.</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3 class="card-title">Mathematical Formulation</h3>
+          <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; font-family: monospace; font-size: 1.1rem; color: var(--accent-blue); margin-bottom: 12px;">
+            y(t) = g(t) + s(t) + h(t) + εₜ
+          </div>
+          <ul class="card-list">
+            <li><strong>g(t) [Trend]:</strong> Non-linear logistic growth curve capturing gradual hardware depreciation over time.</li>
+            <li><strong>s(t) [Seasonality]:</strong> Periodic weekly shopping spikes (weekends) and annual discount cycles.</li>
+            <li><strong>h(t) [Holidays/Events]:</strong> Models sudden pricing dips during Diwali, Republic Day, and Prime Day.</li>
+            <li><strong>εₜ [Error]:</strong> Normally distributed residual noise.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Uncertainty Bounds & Decision Rules</h3>
+          <p class="card-desc">Prophet outputs Bayesian posterior intervals generating upper ($yhat_{upper}$) and lower ($yhat_{lower}$) bounds with an <strong>80% confidence level</strong>.</p>
+          <div style="margin-top: 16px; background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 12px; padding: 14px;">
+            <div style="color: var(--accent-green); font-weight: bold; font-size: 0.95rem; margin-bottom: 4px;">Verdict Decision Rule:</div>
+            <code style="font-size: 0.9rem; color: #fff;">If Expected Savings &gt; 3.0% ➔ <strong>WAIT (⏳)</strong><br>Else ➔ <strong>BUY NOW (🟢)</strong></code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Data Engineering -->
+    <div class="slide" data-notes="Explain our data engineering pipeline: scraping live e-commerce data with User-Agent rotation, combined with our backward-aligned synthetic data generator that ensures zero price leakage and continuity.">
+      <div class="slide-header">
+        <span class="slide-tag">DATA ENGINEERING</span>
+        <h2 class="slide-title">Data Harvesting & Synthesis Pipeline</h2>
+        <p class="slide-subtitle">Overcoming cold-start data scarcity with realistic retail modeling.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-icon">🕷️</div>
+          <h3 class="card-title">1. Live Web Harvesting</h3>
+          <p class="card-desc">BeautifulSoup4 engine with dynamic User-Agent rotation, session retry backoffs, and CSS selector matching for Amazon.in and Flipkart listings.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔬</div>
+          <h3 class="card-title">2. 365-Day Price Synthesis</h3>
+          <p class="card-desc">For unseeded items, synthesizes realistic historical trends combining 15% annual depreciation, sine-wave cyclicality, Gaussian noise, and periodic discount shocks.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">⚓</div>
+          <h3 class="card-title">3. Zero-Leakage Alignment</h3>
+          <p class="card-desc">Backward array generation forces the exact final data point to perfectly match today's live scraped retail price, guaranteeing smooth model continuity.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Live Product Walkthrough -->
+    <div class="slide" data-notes="Demonstrate the interactive product screen: show the chart displaying 15 days of history and 30 days of future predictions with confidence bands, plus the Buy Verdict badge.">
+      <div class="slide-header">
+        <span class="slide-tag">USER INTERFACE WALKTHROUGH</span>
+        <h2 class="slide-title">Interactive Product Forecast View</h2>
+        <p class="slide-subtitle">How complex machine learning outputs are made instantly readable for consumers.</p>
+      </div>
+      <div class="grid-2">
+        <div class="chart-container">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-weight: 700; font-size: 0.95rem;">Apple iPhone 15 (128GB)</span>
+            <span style="font-family: monospace; color: var(--accent-blue); font-size: 1.1rem; font-weight: bold;">₹70,999</span>
+          </div>
+          <!-- Animated SVG Chart -->
+          <svg class="svg-chart" viewBox="0 0 400 180">
+            <!-- Grid Lines -->
+            <line x1="20" y1="30" x2="380" y2="30" stroke="#1e293b" stroke-dasharray="3 3"/>
+            <line x1="20" y1="80" x2="380" y2="80" stroke="#1e293b" stroke-dasharray="3 3"/>
+            <line x1="20" y1="130" x2="380" y2="130" stroke="#1e293b" stroke-dasharray="3 3"/>
+            
+            <!-- Shaded Confidence Band -->
+            <polygon points="180,95 240,80 300,70 360,65 360,140 300,145 240,150 180,110" fill="rgba(56, 189, 248, 0.15)"/>
+            
+            <!-- Historical Path (Solid White) -->
+            <path d="M 20 100 Q 60 85 100 95 T 180 105" fill="none" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
+            
+            <!-- Predicted Path (Cyan Line) -->
+            <path class="chart-line" d="M 180 105 Q 240 120 280 135 T 360 115"/>
+            
+            <!-- Lowest Price Indicator -->
+            <circle cx="280" cy="135" r="5" fill="#34d399"/>
+            <text x="240" y="160" fill="#34d399" font-size="10" font-weight="bold">Predicted Low: ₹64,200</text>
+            <text x="20" y="170" fill="#94a3b8" font-size="9">Past 15 Days History</text>
+            <text x="310" y="170" fill="#38bdf8" font-size="9">30-Day Forecast</text>
+          </svg>
+          <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 8px;">
+            Dual gradient AreaChart with upper & lower 80% confidence interval bands.
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px; justify-content: center;">
+          <div class="card" style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: bold;">ALGORITHMIC VERDICT</span>
+                <div class="verdict-badge verdict-wait pulse" style="margin-top: 6px;">
+                  ⏳ WAIT (Potential Drop)
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <span style="font-size: 0.75rem; color: var(--text-muted);">BEST BUY DATE</span>
+                <div style="font-size: 1.1rem; font-weight: bold; color: #fff; margin-top: 4px;">In 15 Days</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card" style="padding: 16px;">
+              <span style="font-size: 0.75rem; color: var(--accent-green); font-weight: bold;">PROJECTED SAVINGS</span>
+              <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-green); margin-top: 4px;">₹6,799 (9.6%)</div>
+            </div>
+            <div class="card" style="padding: 16px;">
+              <span style="font-size: 0.75rem; color: var(--accent-blue); font-weight: bold;">CONFIDENCE SCORE</span>
+              <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-blue); margin-top: 4px;">96% Certain</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: Model Evaluation -->
+    <div class="slide" data-notes="Highlight our quantitative evaluation metrics. Point out our Mean Absolute Error of ₹820, MAPE of only 1.0%, and overall model accuracy of 98.8%, proving the reliability of our time-series forecasts.">
+      <div class="slide-header">
+        <span class="slide-tag">EXPERIMENTAL RESULTS</span>
+        <h2 class="slide-title">Model Evaluation & Benchmark Accuracy</h2>
+        <p class="slide-subtitle">Rigorous chronological 80/20 train-test backtesting results.</p>
+      </div>
+      <div class="grid-4" style="margin-bottom: 20px;">
+        <div class="kpi-card">
+          <div class="kpi-val" data-target="820" id="kpi-mae">₹0</div>
+          <div class="kpi-label">Mean Absolute Error</div>
+          <div class="kpi-sub">Average deviation (MAE)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val" data-target="1353" id="kpi-rmse" style="color: var(--accent-amber);">₹0</div>
+          <div class="kpi-label">Root Mean Sq Error</div>
+          <div class="kpi-sub">Penalizes large swings (RMSE)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val" data-target="1.0" id="kpi-mape">0%</div>
+          <div class="kpi-label">Mean Abs Pct Error</div>
+          <div class="kpi-sub">Relative error (MAPE)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val" data-target="98.8" id="kpi-acc" style="color: var(--accent-blue);">0%</div>
+          <div class="kpi-label">Model Accuracy</div>
+          <div class="kpi-sub">Target exceeded (≥82%)</div>
+        </div>
+      </div>
+      <div class="card" style="padding: 18px;">
+        <h4 style="font-size: 0.95rem; font-weight: bold; color: var(--text-main); margin-bottom: 4px;">Backtest Observations:</h4>
+        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.4;">
+          The model was evaluated against 30 out-of-sample actual market trading days. The extremely low MAPE of 1.0% demonstrates that Facebook Prophet reliably captures periodic e-commerce discount rhythms without overfitting to short-term noise.
+        </p>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: System Highlights & Resiliency -->
+    <div class="slide" data-notes="Explain the engineering resilience: real-world scrapers often get blocked, so we built a 3-tier fallback architecture, Docker containerization, and theme support so the system never fails.">
+      <div class="slide-header">
+        <span class="slide-tag">ENGINEERING HIGHLIGHTS</span>
+        <h2 class="slide-title">System Resiliency & Reliability</h2>
+        <p class="slide-subtitle">Built to withstand real-world scraping constraints and production deployment.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-icon">🛡️</div>
+          <h3 class="card-title">3-Tier Fallback Hierarchy</h3>
+          <ul class="card-list">
+            <li><strong>Tier 1:</strong> Direct live scraping of Amazon.in and Flipkart.</li>
+            <li><strong>Tier 2:</strong> Intelligent benchmark matching for flagship devices.</li>
+            <li><strong>Tier 3:</strong> Open DummyJSON API fallback for long-tail search queries.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-icon">🐳</div>
+          <h3 class="card-title">Production Docker Setup</h3>
+          <ul class="card-list">
+            <li>Orchestrated via <code>docker-compose.yml</code>.</li>
+            <li>Isolated FastAPI Python 3.10 backend container.</li>
+            <li>React 19 Node 18 frontend container.</li>
+            <li>Redis 7 alpine container for high-speed caching.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-icon">🎨</div>
+          <h3 class="card-title">Full Multi-Theme Engine</h3>
+          <ul class="card-list">
+            <li>Seamless CSS custom property toggles for Dark, Light, and Retro modes.</li>
+            <li>Bcrypt salted password hashing with JWT Bearer session tokens.</li>
+            <li>Responsive layouts for desktop, tablet, and mobile browsers.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: Future Roadmap -->
+    <div class="slide" data-notes="Share the future roadmap: WhatsApp/Telegram bots for instant push alerts, a Chrome browser extension for one-click shopping advice, and an LSTM neural network ensemble.">
+      <div class="slide-header">
+        <span class="slide-tag">PROJECT ROADMAP</span>
+        <h2 class="slide-title">Future Enhancements & Scalability</h2>
+        <p class="slide-subtitle">Expanding PriceSpy into an omnichannel consumer shopping companion.</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-icon">💬</div>
+          <h3 class="card-title">WhatsApp & Telegram Alert Bots</h3>
+          <p class="card-desc">Push instant push messages directly to buyers' smartphones the moment a tracked product hits their designated target price, eliminating the need to check emails.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🧩</div>
+          <h3 class="card-title">Chrome Browser Extension</h3>
+          <p class="card-desc">Embed a lightweight PriceSpy badge directly into Amazon and Flipkart product pages, displaying live BUY NOW or WAIT badges in real-time without leaving the retailer.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🧠</div>
+          <h3 class="card-title">LSTM Deep Learning Ensemble</h3>
+          <p class="card-desc">Combine Prophet's seasonal strength with a Long Short-Term Memory (LSTM) recurrent neural network to better anticipate sudden volatile flash-sale discounts.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🗄️</div>
+          <h3 class="card-title">PostgreSQL & Distributed Workers</h3>
+          <p class="card-desc">Transition database models to PostgreSQL and offload heavy Prophet model retraining to asynchronous background Celery worker queues.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 11: Conclusion & Q&A -->
+    <div class="slide hero-slide" data-notes="Conclude the presentation. Thank the professors, evaluators, and audience. Invite questions and offer a live interactive demonstration.">
+      <div class="slide-tag" style="color: var(--accent-green); font-size: 0.9rem;">PROJECT SUMMARY</div>
+      <h1 class="hero-title" style="font-size: 4rem;">Thank You!</h1>
+      <p class="hero-subtitle">PriceSpy: Transforming E-Commerce with Predictive Intelligence</p>
+      <div style="margin: 20px 0; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 16px; padding: 18px 32px; display: inline-block;">
+        <span style="color: var(--accent-blue); font-weight: bold; font-size: 1.2rem;">Ready for Questions & Live Demonstration</span>
+      </div>
+      <div style="color: var(--text-muted); font-size: 0.95rem; margin-top: 16px;">
+        GitHub: <code>github.com/satwik/MINI-PROJECT</code> • Academic Final Year Project
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Presenter Notes Drawer -->
+  <div id="notes-drawer">
+    <div class="notes-title">
+      <span>🎙️ Presenter Talking Points</span>
+      <span style="cursor: pointer;" onclick="toggleNotes()">✕</span>
+    </div>
+    <div class="notes-content" id="notes-text">
+      Welcome the evaluators and audience.
+    </div>
+  </div>
+
+  <footer>
+    <div class="timer-display" id="timer">⏱️ 00:00</div>
+    <div class="controls">
+      <button class="btn" onclick="toggleNotes()" title="Toggle Presenter Notes (P)">🎙️ Notes (P)</button>
+      <button class="btn" onclick="toggleFullscreen()" title="Toggle Fullscreen (F)">⛶ Fullscreen (F)</button>
+      <button class="btn" onclick="prevSlide()" title="Previous Slide (←)">← Back</button>
+      <button class="btn btn-primary" onclick="nextSlide()" title="Next Slide (→ / Space)">Next Slide →</button>
+    </div>
+  </footer>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const progressBar = document.getElementById('progress-bar');
+    const slideCounter = document.getElementById('slide-counter');
+    const notesDrawer = document.getElementById('notes-drawer');
+    const notesText = document.getElementById('notes-text');
+    const timerDisplay = document.getElementById('timer');
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+
+    // Presentation Timer
+    let startTime = Date.now();
+    setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+      const secs = String(elapsed % 60).padStart(2, '0');
+      timerDisplay.textContent = `⏱️ ${mins}:${secs}`;
+    }, 1000);
+
+    function showSlide(index) {
+      if (index < 0 || index >= totalSlides) return;
+      
+      slides[currentSlide].classList.remove('active');
+      currentSlide = index;
+      slides[currentSlide].classList.add('active');
+
+      // Update Header & Progress
+      const progressPct = ((currentSlide + 1) / totalSlides) * 100;
+      progressBar.style.width = progressPct + '%';
+      slideCounter.textContent = `SLIDE ${currentSlide + 1} / ${totalSlides}`;
+
+      // Update Presenter Notes
+      const notes = slides[currentSlide].getAttribute('data-notes') || 'No notes for this slide.';
+      notesText.textContent = notes;
+
+      // Trigger animations for specific slides
+      if (currentSlide === 7) { // Slide 8: Evaluation KPI counters
+        animateKpis();
+      } else if (currentSlide === totalSlides - 1) { // Final slide: Confetti!
+        triggerConfetti();
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        showSlide(currentSlide + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        showSlide(currentSlide - 1);
+      }
+    }
+
+    function toggleNotes() {
+      notesDrawer.classList.toggle('open');
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen();
+      } else if (e.key === 'p' || e.key === 'P') {
+        toggleNotes();
+      } else if (e.key === 'Home') {
+        showSlide(0);
+      } else if (e.key === 'End') {
+        showSlide(totalSlides - 1);
+      }
+    });
+
+    // KPI Number Counter Animation
+    function animateKpis() {
+      const maeElem = document.getElementById('kpi-mae');
+      const rmseElem = document.getElementById('kpi-rmse');
+      const mapeElem = document.getElementById('kpi-mape');
+      const accElem = document.getElementById('kpi-acc');
+
+      animateNumber(maeElem, 0, 820, 1000, '₹', '');
+      animateNumber(rmseElem, 0, 1353, 1000, '₹', '');
+      animateFloat(mapeElem, 0, 1.0, 1000, '', '%');
+      animateFloat(accElem, 80, 98.8, 1000, '', '%');
+    }
+
+    function animateNumber(elem, start, end, duration, prefix, suffix) {
+      const startTime = performance.now();
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const val = Math.floor(start + (end - start) * progress);
+        elem.textContent = `${prefix}${val.toLocaleString()}${suffix}`;
+        if (progress < 1) requestAnimationFrame(update);
+      }
+      requestAnimationFrame(update);
+    }
+
+    function animateFloat(elem, start, end, duration, prefix, suffix) {
+      const startTime = performance.now();
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const val = (start + (end - start) * progress).toFixed(1);
+        elem.textContent = `${prefix}${val}${suffix}`;
+        if (progress < 1) requestAnimationFrame(update);
+      }
+      requestAnimationFrame(update);
+    }
+
+    // Canvas Confetti Effect
+    function triggerConfetti() {
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ['#38bdf8', '#34d399', '#fbbf24', '#f43f5e', '#a855f7'];
+
+      for (let i = 0; i < 90; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height * 0.4,
+          r: Math.random() * 6 + 4,
+          dx: (Math.random() - 0.5) * 4,
+          dy: Math.random() * 3 + 2,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          tilt: Math.random() * 10
+        });
+      }
+
+      let animationFrames = 0;
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2, false);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+
+          p.x += p.dx;
+          p.y += p.dy;
+          if (p.y > canvas.height) p.y = -10;
+        });
+
+        animationFrames++;
+        if (animationFrames < 200) {
+          requestAnimationFrame(render);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      render();
+    }
+
+    // Initialize first slide notes
+    showSlide(0);
+  </script>
+</body>
+</html>
