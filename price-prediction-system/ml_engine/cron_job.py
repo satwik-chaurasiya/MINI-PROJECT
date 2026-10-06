@@ -3,9 +3,12 @@ import os
 from datetime import datetime
 from models.forecaster import PriceForecaster
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "data")
+
 def run_daily_prediction_batch():
     print(f"[{datetime.now()}] --- Running Scheduled Price Prediction Batch ---")
-    data_file = "ml_engine/data/prod_1_history.csv"
+    data_file = os.path.join(DATA_DIR, "prod_1_history.csv")
     
     if not os.path.exists(data_file):
         print(f"Error: Missing {data_file}. Generating fresh dataset...")
@@ -15,7 +18,7 @@ def run_daily_prediction_batch():
     forecaster = PriceForecaster(data_file)
     predictions = forecaster.generate_prediction_payload(product_id="prod_1")
     
-    output_cache = "ml_engine/data/latest_predictions.json"
+    output_cache = os.path.join(DATA_DIR, "latest_predictions.json")
     with open(output_cache, "w") as f:
         json.dump(predictions, f, indent=2)
 

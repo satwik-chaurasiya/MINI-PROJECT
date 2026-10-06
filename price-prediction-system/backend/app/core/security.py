@@ -1,21 +1,22 @@
-from datetime import datetime, timedelta
-from jose import jwt
-from passlib.context import CryptContext
+import os
+from datetime import datetime, timedelta, timezone
 
-SECRET_KEY = "supersecretkey_pricespy_ai"
+import bcrypt
+from jose import jwt
+
+SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey_pricespy_ai")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    return bcrypt.checkpw(plain_password.encode("utf-8")[:72], hashed_password.encode("utf-8"))
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    # bcrypt only uses the first 72 bytes of the password
+    return bcrypt.hashpw(password.encode("utf-8")[:72], bcrypt.gensalt()).decode("utf-8")
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)

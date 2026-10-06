@@ -1,0 +1,6 @@
+pandas
+numpy
+prophet
+scikit-learn
+requests
+beautifulsoup4

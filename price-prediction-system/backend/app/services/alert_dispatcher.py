@@ -3,6 +3,10 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import json
 import os
+import sys
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")  # allow ₹/emoji on Windows cp1252 consoles
 
 # SMTP Configuration (Use environment variables in production)
 SMTP_HOST = "smtp.gmail.com"
@@ -10,7 +14,11 @@ SMTP_PORT = 587
 SMTP_USER = "your_email@gmail.com"
 SMTP_PASS = "your_app_password"
 
-def check_and_dispatch_alerts(alerts_list, predictions_file="ml_engine/data/latest_predictions.json"):
+# Resolve project root: services -> app -> backend -> project root
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+DEFAULT_PREDICTIONS_FILE = os.path.join(PROJECT_ROOT, "ml_engine", "data", "latest_predictions.json")
+
+def check_and_dispatch_alerts(alerts_list, predictions_file=DEFAULT_PREDICTIONS_FILE):
     """
     Compares active user alerts with predicted/current lowest prices.
     Triggers email when current_price or predicted_lowest <= target_price.

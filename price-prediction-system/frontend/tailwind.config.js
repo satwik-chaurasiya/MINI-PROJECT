@@ -6,12 +6,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        mainDark: "#0D1117",
-        cardDark: "#161B22",
-        surfaceDark: "#21262D",
-        electricBlue: "#2979FF",
-        dropGreen: "#00C853",
-        waitAmber: "#FFB300"
+        mainDark: "var(--main-bg)",
+        cardDark: "var(--card-bg)",
+        surfaceDark: "var(--surface-bg)",
+        electricBlue: "var(--electric-blue)",
+        dropGreen: "var(--drop-green)",
+        waitAmber: "var(--wait-amber)",
+        white: "var(--text-main)",
+        tabActive: "var(--tab-active-bg)",
+        tabHover: "var(--tab-hover-bg)",
+        gray: {
+          300: "var(--text-muted)",
+          400: "var(--text-muted-dark)"
+        }
       }
     },
   },

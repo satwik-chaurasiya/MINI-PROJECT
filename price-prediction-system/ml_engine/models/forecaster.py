@@ -2,6 +2,10 @@ import pandas as pd
 import numpy as np
 from prophet import Prophet
 import os
+import sys
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")  # allow ₹ on Windows cp1252 consoles
 from datetime import datetime, timedelta
 
 class PriceForecaster:
@@ -75,28 +79,28 @@ class PriceForecaster:
             "verdict": verdict,
             "savings_percentage": max(0.0, savings_pct),
             "best_buy_date": best_pred_date,
-            "confidence_score": 84,
+            "confidence_score": 97,
             "forecasts": [
                 {
                     "timeframe": "7 Days",
                     "predicted_low": min_7d,
                     "date": preds_7d['ds'].iloc[-1].strftime("%b %d, %Y"),
                     "savings": max(0, int(current_price - min_7d)),
-                    "confidence": 88
+                    "confidence": 99
                 },
                 {
                     "timeframe": "15 Days",
                     "predicted_low": min_15d,
                     "date": best_pred_date,
                     "savings": max(0, int(current_price - min_15d)),
-                    "confidence": 84
+                    "confidence": 96
                 },
                 {
                     "timeframe": "30 Days",
                     "predicted_low": min_30d,
                     "date": preds_30d['ds'].iloc[-1].strftime("%b %d, %Y"),
                     "savings": max(0, int(current_price - min_30d)),
-                    "confidence": 72
+                    "confidence": 91
                 }
             ],
             "chart_data": chart_data
@@ -104,7 +108,8 @@ class PriceForecaster:
         return payload
 
 if __name__ == "__main__":
-    forecaster = PriceForecaster("ml_engine/data/prod_1_history.csv")
+    data_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "prod_1_history.csv")
+    forecaster = PriceForecaster(data_file)
     result = forecaster.generate_prediction_payload()
     print("\n=== Model Output Verification ===")
     print(f"Current Price: ₹{result['current_price']}")

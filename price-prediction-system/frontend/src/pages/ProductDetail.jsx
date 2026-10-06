@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { Bell, Clock, TrendingDown, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Bell, Clock, TrendingDown, ShieldCheck, CheckCircle2, ShoppingCart } from 'lucide-react';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -47,9 +47,21 @@ export default function ProductDetail() {
           <h1 className="text-2xl font-bold mt-2">{product.name}</h1>
           <p className="text-gray-400 text-sm mt-1">⭐ {product.rating} ({product.review_count} ratings)</p>
         </div>
-        <div className="text-right">
-          <div className="text-gray-400 text-xs">Current Price</div>
-          <div className="text-3xl font-bold font-mono text-white">₹{product.current_price.toLocaleString()}</div>
+        <div className="text-left md:text-right flex flex-col md:items-end gap-3">
+          <div>
+            <div className="text-gray-400 text-xs">Current Price</div>
+            <div className="text-3xl font-bold font-mono text-white">₹{product.current_price.toLocaleString()}</div>
+          </div>
+          {product.store_url && (
+            <a 
+              href={product.store_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-electricBlue hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition"
+            >
+              <ShoppingCart className="w-4 h-4" /> View on {product.platform}
+            </a>
+          )}
         </div>
       </div>
 

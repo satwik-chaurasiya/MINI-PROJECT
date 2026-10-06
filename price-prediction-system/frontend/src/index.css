@@ -2,9 +2,52 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --main-bg: #0D1117;
+  --card-bg: #161B22;
+  --surface-bg: #21262D;
+  --electric-blue: #2979FF;
+  --drop-green: #00C853;
+  --wait-amber: #FFB300;
+  --text-main: #FFFFFF;
+  --text-muted: #D1D5DB;
+  --text-muted-dark: #9CA3AF;
+  --tab-active-bg: rgba(255, 255, 255, 0.15);
+  --tab-hover-bg: rgba(255, 255, 255, 0.05);
+}
+
+body[data-theme="light"] {
+  --main-bg: #F3F4F6;
+  --card-bg: #FFFFFF;
+  --surface-bg: #E5E7EB;
+  --electric-blue: #2563EB;
+  --drop-green: #16A34A;
+  --wait-amber: #D97706;
+  --text-main: #111827;
+  --text-muted: #4B5563;
+  --text-muted-dark: #6B7280;
+  --tab-active-bg: rgba(0, 0, 0, 0.1);
+  --tab-hover-bg: rgba(0, 0, 0, 0.05);
+}
+
+body[data-theme="retro"] {
+  --main-bg: #282A36;
+  --card-bg: #44475A;
+  --surface-bg: #6272A4;
+  --electric-blue: #BD93F9;
+  --drop-green: #50FA7B;
+  --wait-amber: #F1FA8C;
+  --text-main: #F8F8F2;
+  --text-muted: #8BE9FD;
+  --text-muted-dark: #FF79C6;
+  --tab-active-bg: rgba(248, 248, 242, 0.15);
+  --tab-hover-bg: rgba(248, 248, 242, 0.05);
+}
+
 body {
   margin: 0;
-  background-color: #0D1117;
-  color: #FFFFFF;
+  background-color: var(--main-bg);
+  color: var(--text-main);
   font-family: 'Inter', sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }

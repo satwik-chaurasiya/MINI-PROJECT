@@ -1,9 +1,17 @@
+import os
+import sys
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")  # allow ₹ on Windows cp1252 consoles
 import pandas as pd
 import numpy as np
 from prophet import Prophet
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-def evaluate_model_performance(data_path="ml_engine/data/prod_1_history.csv", test_days=30):
+ML_ENGINE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_DATA_PATH = os.path.join(ML_ENGINE_DIR, "data", "prod_1_history.csv")
+
+def evaluate_model_performance(data_path=DEFAULT_DATA_PATH, test_days=30):
     df = pd.read_csv(data_path)
     df['ds'] = pd.to_datetime(df['date'])
     df['y'] = df['price']
