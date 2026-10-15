@@ -4,8 +4,8 @@ services:
   # 1. FastAPI Application Layer
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: pricespy_backend
     ports:
       - "8000:8000"
@@ -16,6 +16,7 @@ services:
       - redis
     volumes:
       - ./ml_engine/data:/app/ml_engine/data
+      - ./backend/pricespy.db:/app/backend/pricespy.db
 
   # 2. React User Interface Layer
   frontend:

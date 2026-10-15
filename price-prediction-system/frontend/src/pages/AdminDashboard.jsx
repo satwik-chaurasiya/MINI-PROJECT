@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Activity, Server, RefreshCw, AlertTriangle, CheckCircle, Database } from 'lucide-react';
+import { Activity, Server, RefreshCw, CheckCircle, Database } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [metrics, setMetrics] = useState(null);

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { Bell, Clock, TrendingDown, ShieldCheck, CheckCircle2, ShoppingCart } from 'lucide-react';
+import { Clock, TrendingDown, ShieldCheck, CheckCircle2, ShoppingCart, Database, GitCompare } from 'lucide-react';
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [targetPrice, setTargetPrice] = useState('');
   const [alertSuccess, setAlertSuccess] = useState(false);
@@ -23,14 +24,25 @@ export default function ProductDetail() {
 
   const handleSetAlert = (e) => {
     e.preventDefault();
+    const token = localStorage.getItem('pricespy_token');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    
     axios.post('http://127.0.0.1:8000/api/alerts', {
-      user_email: "user@example.com",
       product_id: product.id,
+      product_name: product.name,
       target_price: parseFloat(targetPrice),
-      notify_method: "Email"
+      notify_method: "Email",
+      platform: product.platform || "Amazon",
+      current_price: product.current_price,
+      store_url: product.store_url || ""
+    }, {
+      headers
     }).then(() => {
       setAlertSuccess(true);
       setTimeout(() => setAlertSuccess(false), 4000);
+    }).catch(err => {
+      console.error("Alert failed", err);
+      alert("Failed to register alert in database. Please try again.");
     });
   };
 
@@ -41,9 +53,14 @@ export default function ProductDetail() {
       {/* Product Header */}
       <div className="bg-cardDark p-6 rounded-2xl border border-surfaceDark flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <span className="text-xs font-semibold px-2.5 py-1 bg-surfaceDark text-electricBlue rounded-md uppercase tracking-wider">
-            {product.platform} • {product.category}
-          </span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-semibold px-2.5 py-1 bg-surfaceDark text-electricBlue rounded-md uppercase tracking-wider">
+              {product.platform} • {product.category}
+            </span>
+            <span className="text-xs font-semibold px-2 py-0.5 bg-dropGreen/20 text-dropGreen border border-dropGreen/30 rounded-md flex items-center gap-1">
+              <Database className="w-3 h-3" /> Database Synced
+            </span>
+          </div>
           <h1 className="text-2xl font-bold mt-2">{product.name}</h1>
           <p className="text-gray-400 text-sm mt-1">⭐ {product.rating} ({product.review_count} ratings)</p>
         </div>
@@ -52,16 +69,25 @@ export default function ProductDetail() {
             <div className="text-gray-400 text-xs">Current Price</div>
             <div className="text-3xl font-bold font-mono text-white">₹{product.current_price.toLocaleString()}</div>
           </div>
-          {product.store_url && (
-            <a 
-              href={product.store_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-electricBlue hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition"
+          <div className="flex items-center gap-2 flex-wrap">
+            <button 
+              onClick={() => navigate(`/compare?q=${encodeURIComponent(product.name)}`)}
+              className="flex items-center gap-2 bg-surfaceDark hover:bg-tabHover border border-surfaceDark text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition"
+              title="Compare prices across Amazon, Flipkart, Walmart, and eBay"
             >
-              <ShoppingCart className="w-4 h-4" /> View on {product.platform}
-            </a>
-          )}
+              <GitCompare className="w-4 h-4 text-electricBlue" /> Compare 4 Platforms
+            </button>
+            {product.store_url && (
+              <a 
+                href={product.store_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-electricBlue hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition"
+              >
+                <ShoppingCart className="w-4 h-4" /> View on {product.platform}
+              </a>
+            )}
+          </div>
         </div>
       </div>
 
@@ -130,7 +156,17 @@ export default function ProductDetail() {
 
       {/* Alert Registration */}
       <div className="bg-cardDark p-6 rounded-2xl border border-surfaceDark">
-        <h2 className="text-lg font-bold mb-2">🔔 Set Target Price Alert</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+          <div>
+            <h2 className="text-lg font-bold">🔔 Set Target Price Alert</h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              Saves to your SQLite database watchlist for <strong className="text-white">{product.platform}</strong>. When price drops to or below target, an automated alert is triggered.
+            </p>
+          </div>
+          <span className="text-xs font-mono text-electricBlue bg-surfaceDark px-3 py-1 rounded-lg border border-surfaceDark w-fit">
+            Platform: {product.platform}
+          </span>
+        </div>
         <form onSubmit={handleSetAlert} className="flex flex-col sm:flex-row gap-4 items-center mt-4">
           <div className="relative w-full sm:w-80">
             <span className="absolute left-3 top-2.5 text-gray-400">₹</span>

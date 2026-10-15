@@ -100,6 +100,30 @@ export default function LandingPage() {
             Search
           </button>
         </form>
+
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs text-gray-400">
+          <span className="flex items-center gap-1 font-semibold text-gray-300">
+            <Database className="w-3.5 h-3.5 text-dropGreen" /> Connected Platforms:
+          </span>
+          <span className="px-2.5 py-1 bg-surfaceDark/80 rounded-lg border border-amber-500/30 text-amber-400 font-medium">
+            Amazon
+          </span>
+          <span className="px-2.5 py-1 bg-surfaceDark/80 rounded-lg border border-blue-500/30 text-blue-400 font-medium">
+            Flipkart
+          </span>
+          <span className="px-2.5 py-1 bg-surfaceDark/80 rounded-lg border border-cyan-500/30 text-cyan-400 font-medium">
+            Walmart
+          </span>
+          <span className="px-2.5 py-1 bg-surfaceDark/80 rounded-lg border border-rose-500/30 text-rose-400 font-medium">
+            eBay
+          </span>
+          <button 
+            onClick={() => navigate('/compare')} 
+            className="text-electricBlue hover:underline flex items-center gap-1 ml-1"
+          >
+            Compare All <ArrowRight className="w-3 h-3" />
+          </button>
+        </div>
       </section>
 
       {/* Categories Catalog */}

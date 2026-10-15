@@ -6,6 +6,7 @@ import ProductDetail from './pages/ProductDetail';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AuthPage from './pages/AuthPage';
+import ComparePage from './pages/ComparePage';
 
 function Navigation({ userEmail, onLogout, toggleTheme }) {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ function Navigation({ userEmail, onLogout, toggleTheme }) {
       </Link>
       <nav className="flex items-center space-x-4 text-sm text-gray-300">
         <Link to="/" className={getNavClass("/")}>Home</Link>
+        <Link to="/compare" className={getNavClass("/compare")}>Compare</Link>
         <Link to="/dashboard" className={getNavClass("/dashboard")}>Dashboard</Link>
         <Link to="/admin" className={getNavClass("/admin")}>Admin</Link>
         
@@ -97,6 +99,7 @@ export default function App() {
         <main className="max-w-7xl mx-auto mt-8">
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/compare" element={<ComparePage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/product/:id" element={<ProductDetail />} />
