@@ -14,56 +14,56 @@ export default function AdminDashboard() {
   if (!metrics) return <div className="p-8 text-center text-gray-400">Loading Admin Telemetry...</div>;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold">System Administration</h1>
-        <p className="text-gray-400 text-sm">Real-time health telemetry, scraper status, and model accuracy logs.</p>
+        <h1 className="text-3xl font-bold font-display tracking-tight text-white">System Administration</h1>
+        <p className="text-gray-400 text-sm mt-1">Real-time health telemetry, scraper status, and model accuracy logs.</p>
       </div>
 
       {/* Metric Telemetry Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-cardDark p-5 rounded-2xl border border-surfaceDark">
-          <div className="flex justify-between items-center text-gray-400 text-xs font-semibold">
-            <span>TOTAL PRODUCTS</span>
+        <div className="glass-panel glass-panel-hover p-5 rounded-2xl">
+          <div className="flex justify-between items-center text-gray-400 text-xs font-semibold uppercase tracking-wider">
+            <span>Total Products</span>
             <Database className="h-4 w-4 text-electricBlue" />
           </div>
-          <div className="text-2xl font-bold font-mono mt-2">{metrics.total_products.toLocaleString()}</div>
-          <span className="text-xs text-dropGreen">Active tracking</span>
+          <div className="text-2xl font-bold font-mono text-white mt-2">{metrics.total_products.toLocaleString()}</div>
+          <span className="text-xs text-dropGreen flex items-center gap-1 mt-1 font-medium">● Active tracking</span>
         </div>
 
-        <div className="bg-cardDark p-5 rounded-2xl border border-surfaceDark">
-          <div className="flex justify-between items-center text-gray-400 text-xs font-semibold">
-            <span>SCRAPER SUCCESS</span>
+        <div className="glass-panel glass-panel-hover p-5 rounded-2xl">
+          <div className="flex justify-between items-center text-gray-400 text-xs font-semibold uppercase tracking-wider">
+            <span>Scraper Success</span>
             <Server className="h-4 w-4 text-dropGreen" />
           </div>
-          <div className="text-2xl font-bold font-mono mt-2">{metrics.scrape_success_rate}%</div>
-          <span className="text-xs text-dropGreen">Last 24 hours</span>
+          <div className="text-2xl font-bold font-mono text-white mt-2">{metrics.scrape_success_rate}%</div>
+          <span className="text-xs text-dropGreen flex items-center gap-1 mt-1 font-medium">● Last 24 hours</span>
         </div>
 
-        <div className="bg-cardDark p-5 rounded-2xl border border-surfaceDark">
-          <div className="flex justify-between items-center text-gray-400 text-xs font-semibold">
-            <span>MODEL ACCURACY</span>
+        <div className="glass-panel glass-panel-hover p-5 rounded-2xl">
+          <div className="flex justify-between items-center text-gray-400 text-xs font-semibold uppercase tracking-wider">
+            <span>Model Accuracy</span>
             <Activity className="h-4 w-4 text-electricBlue" />
           </div>
-          <div className="text-2xl font-bold font-mono mt-2">MAPE: {metrics.model_accuracy.mape}</div>
-          <span className="text-xs text-gray-400">MAE: {metrics.model_accuracy.mae} • RMSE: {metrics.model_accuracy.rmse}</span>
+          <div className="text-2xl font-bold font-mono text-white mt-2">MAPE: {metrics.model_accuracy.mape}</div>
+          <span className="text-xs text-gray-400 mt-1 block font-mono">MAE: {metrics.model_accuracy.mae} • RMSE: {metrics.model_accuracy.rmse}</span>
         </div>
 
-        <div className="bg-cardDark p-5 rounded-2xl border border-surfaceDark">
-          <div className="flex justify-between items-center text-gray-400 text-xs font-semibold">
-            <span>SYSTEM UPTIME</span>
+        <div className="glass-panel glass-panel-hover p-5 rounded-2xl">
+          <div className="flex justify-between items-center text-gray-400 text-xs font-semibold uppercase tracking-wider">
+            <span>System Uptime</span>
             <CheckCircle className="h-4 w-4 text-dropGreen" />
           </div>
-          <div className="text-2xl font-bold font-mono mt-2">{metrics.system_uptime}</div>
-          <span className="text-xs text-dropGreen">Operational</span>
+          <div className="text-2xl font-bold font-mono text-white mt-2">{metrics.system_uptime}</div>
+          <span className="text-xs text-dropGreen flex items-center gap-1 mt-1 font-medium">● Operational</span>
         </div>
       </div>
 
       {/* Scraper & Model Status */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Scraper Health */}
-        <div className="bg-cardDark p-6 rounded-2xl border border-surfaceDark space-y-4">
-          <h2 className="text-lg font-bold flex items-center gap-2">
+        <div className="glass-panel p-6 rounded-2xl space-y-4">
+          <h2 className="text-lg font-bold font-display flex items-center gap-2 text-white">
             <Server className="h-5 w-5 text-electricBlue" /> Scraper Engine Status
           </h2>
           <div className="divide-y divide-surfaceDark">
@@ -84,9 +84,9 @@ export default function AdminDashboard() {
         </div>
 
         {/* Model Performance */}
-        <div className="bg-cardDark p-6 rounded-2xl border border-surfaceDark space-y-4">
+        <div className="glass-panel p-6 rounded-2xl space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold flex items-center gap-2">
+            <h2 className="text-lg font-bold font-display flex items-center gap-2 text-white">
               <Activity className="h-5 w-5 text-dropGreen" /> Model Registry & Evaluation
             </h2>
             <button className="text-xs text-electricBlue flex items-center gap-1 hover:underline">

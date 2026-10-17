@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build --prefix freelance-web-design",
+  "outputDirectory": "freelance-web-design/.next",
+  "framework": "nextjs"
+}

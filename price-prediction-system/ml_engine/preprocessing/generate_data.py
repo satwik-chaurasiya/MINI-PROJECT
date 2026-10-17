@@ -13,17 +13,19 @@ def generate_mock_price_series(product_id="prod_1", base_price=85000, days=365):
 
     # Generate gradual trend + seasonal fluctuations + noise
     # We want the price to END exactly at base_price today.
-    # So we generate history backwards or adjust the array.
-    historical_start = base_price * 1.15 # It was 15% more expensive a year ago
+    historical_start = base_price * 1.15 # It was ~15% more expensive a year ago
     trend = np.linspace(historical_start, base_price, days)
-    seasonality = 1500 * np.sin(np.linspace(0, 8 * np.pi, days))
-    noise = np.random.normal(0, 500, days)
+    seasonality = (base_price * 0.03) * np.sin(np.linspace(0, 8 * np.pi, days))
+    noise = np.random.normal(0, base_price * 0.01, days)
     prices = trend + seasonality + noise
     
     # Simulate major sale event price drops (e.g., Festival / Prime Day shocks)
     for i in range(len(prices)):
-        if i % 60 in [0, 1, 2]:  # Periodic discount windows
-            prices[i] -= 5000 + np.random.uniform(500, 1500)
+        if i % 60 in [0, 1, 2]:  # Periodic discount windows (e.g., 15-25% off)
+            prices[i] *= np.random.uniform(0.78, 0.88)
+
+    # Force realistic positive floor (never below 40% of base price)
+    prices = np.maximum(prices, base_price * 0.40)
 
     # Force the very last price (today) to exactly match the real scraped base_price
     prices[-1] = base_price

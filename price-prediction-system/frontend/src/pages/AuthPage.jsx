@@ -36,16 +36,17 @@ export default function AuthPage({ onLoginSuccess }) {
   };
 
   return (
-    <div className="max-w-md mx-auto my-12 bg-cardDark p-8 rounded-2xl border border-surfaceDark shadow-2xl">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold">{isLogin ? 'Welcome Back' : 'Create an Account'}</h2>
+    <div className="max-w-md mx-auto my-12 glass-panel p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+      <div className="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="text-center mb-6 relative">
+        <h2 className="text-2xl font-bold font-display text-gradient-cyan">{isLogin ? 'Welcome Back' : 'Create an Account'}</h2>
         <p className="text-gray-400 text-xs mt-1">
           {isLogin ? 'Access your tracked watchlists and alert notifications' : 'Join PriceSpy to predict lowest market prices'}
         </p>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-950/40 border border-red-800 rounded-xl text-red-400 text-xs flex items-center gap-2">
+        <div className="mb-4 p-3 bg-red-950/40 border border-red-800/50 rounded-xl text-red-400 text-xs flex items-center gap-2">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <span>{error}</span>
         </div>
@@ -58,16 +59,16 @@ export default function AuthPage({ onLoginSuccess }) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 relative">
         <div>
-          <label className="block text-xs text-gray-400 mb-1">Email Address</label>
+          <label className="block text-xs font-medium text-gray-400 mb-1">Email Address</label>
           <div className="relative">
             <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-surfaceDark border border-surfaceDark focus:border-electricBlue rounded-xl pl-9 pr-4 py-2.5 text-sm text-white focus:outline-none"
+              className="w-full bg-surfaceDark/60 border border-white/10 focus:border-electricBlue rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none transition"
               placeholder="name@example.com"
               required
             />
@@ -75,14 +76,14 @@ export default function AuthPage({ onLoginSuccess }) {
         </div>
 
         <div>
-          <label className="block text-xs text-gray-400 mb-1">Password</label>
+          <label className="block text-xs font-medium text-gray-400 mb-1">Password</label>
           <div className="relative">
             <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-surfaceDark border border-surfaceDark focus:border-electricBlue rounded-xl pl-9 pr-4 py-2.5 text-sm text-white focus:outline-none"
+              className="w-full bg-surfaceDark/60 border border-white/10 focus:border-electricBlue rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none transition"
               placeholder="••••••••"
               required
             />
@@ -91,13 +92,13 @@ export default function AuthPage({ onLoginSuccess }) {
 
         <button
           type="submit"
-          className="w-full mt-2 bg-electricBlue hover:bg-blue-600 text-white font-semibold py-2.5 rounded-xl text-sm transition"
+          className="w-full mt-2 bg-gradient-to-r from-sky-400 to-blue-600 hover:from-sky-300 hover:to-blue-500 text-slate-950 font-bold py-2.5 rounded-xl text-sm transition shadow-lg shadow-sky-500/20 active:scale-95"
         >
           {isLogin ? 'Log In' : 'Sign Up'}
         </button>
       </form>
 
-      <div className="mt-6 text-center border-t border-surfaceDark pt-4">
+      <div className="mt-6 text-center border-t border-white/10 pt-4">
         <button
           onClick={() => {
             setIsLogin(!isLogin);

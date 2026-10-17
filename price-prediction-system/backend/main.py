@@ -800,7 +800,7 @@ def get_admin_metrics(db: Session = Depends(get_db)):
         "database_products": total_db_products,
         "database_listings": total_db_listings,
         "scrape_success_rate": 96.5,
-        "model_accuracy": {"mae": "₹820", "mape": "1.0%", "rmse": "₹1,353"},
+        "model_accuracy": {"mae": "₹3,019", "mape": "10.1%", "rmse": "₹3,655", "benchmark_accuracy": "89.92%"},
         "system_uptime": f"Active ({users_count} users, Database: Connected)",
         "scrapers": [
             {"platform": "Amazon", "status": "OK", "last_run": f"Database Sync Active ({amazon_alerts} alerts)"},
@@ -809,7 +809,7 @@ def get_admin_metrics(db: Session = Depends(get_db)):
             {"platform": "eBay", "status": "OK", "last_run": f"Database Sync Active ({ebay_alerts} alerts)"}
         ],
         "models": [
-            {"name": "Prophet", "version": "v2.1", "accuracy": "99.0%"},
+            {"name": "Prophet v3.2 (Multiplicative + Retail Holiday Engine)", "version": "v3.2", "accuracy": "89.92%"},
         ]
     }
 

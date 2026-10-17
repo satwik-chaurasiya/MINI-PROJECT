@@ -1,0 +1,25 @@
+{
+  "name": "valence-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VALENCE // High-Converting Web Design & Bespoke Next.js 16 Engineering Studio",
+  "scripts": {
+    "dev": "npm run dev --prefix freelance-web-design",
+    "build": "npm run build --prefix freelance-web-design",
+    "start": "npm run start --prefix freelance-web-design",
+    "lint": "npm run lint --prefix freelance-web-design",
+    "install:all": "npm install --prefix freelance-web-design"
+  },
+  "keywords": [
+    "nextjs",
+    "tailwind",
+    "web-design",
+    "freelance",
+    "landing-page",
+    "conversion-optimization",
+    "dark-mode",
+    "typescript"
+  ],
+  "author": "Alex Vance <alex@valence-studio.dev>",
+  "license": "MIT"
+}
