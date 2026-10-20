@@ -1,11 +1,36 @@
+version: '3.8'
+
 services:
-  web:
+  # 1. FastAPI High-Performance Backend Layer
+  backend:
     build:
-      context: .
+      context: ./price-prediction-system
+      dockerfile: backend/Dockerfile
+    container_name: pricespy_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    volumes:
+      - ./price-prediction-system/ml_engine/data:/app/ml_engine/data
+
+  # 2. React 19 User Interface Layer
+  frontend:
+    build:
+      context: ./price-prediction-system/frontend
       dockerfile: Dockerfile
-    container_name: valence_studio_web
+    container_name: pricespy_frontend
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=production
-    restart: unless-stopped
+    depends_on:
+      - backend
+
+  # 3. Redis In-Memory Cache Layer
+  redis:
+    image: redis:7-alpine
+    container_name: pricespy_redis
+    ports:
+      - "6379:6379"

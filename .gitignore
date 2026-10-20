@@ -1,0 +1,97 @@
+# ==============================================================================
+# PriceSpy — Git Ignore Rules for Public Repository Security & Cleanliness
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Sensitive Data, Credentials & Environment Secrets (Prevent Data Theft)
+# ------------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+id_rsa*
+secrets.json
+
+# ------------------------------------------------------------------------------
+# 2. SQLite Databases & WAL Journal Files (No live personal user data in Git)
+# ------------------------------------------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+*.db-wal
+*.db-shm
+*.db-journal
+pricespy.db
+**/pricespy.db
+
+# ------------------------------------------------------------------------------
+# 3. Python Bytecode, Caches & Virtual Environments
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ------------------------------------------------------------------------------
+# 4. Node.js & React Frontend Artifacts
+# ------------------------------------------------------------------------------
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+frontend/build/
+**/build/
+.next/
+out/
+
+# ------------------------------------------------------------------------------
+# 5. Developer Tools, IDEs & OS Metadata
+# ------------------------------------------------------------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+
+# ------------------------------------------------------------------------------
+# 6. Scraping Dumps, Logs & Temporary Files
+# ------------------------------------------------------------------------------
+*.log
+logs/
+flipkart_dump.html
+**/flipkart_dump.html
+temp/
+tmp/

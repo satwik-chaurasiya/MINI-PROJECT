@@ -1,25 +1,20 @@
 {
-  "name": "valence-studio",
+  "name": "pricespy",
   "version": "1.0.0",
-  "private": true,
-  "description": "VALENCE // High-Converting Web Design & Bespoke Next.js 16 Engineering Studio",
+  "description": "PriceSpy — AI-Powered E-Commerce Price Prediction & Multi-Store Intelligence System",
   "scripts": {
-    "dev": "npm run dev --prefix freelance-web-design",
-    "build": "npm run build --prefix freelance-web-design",
-    "start": "npm run start --prefix freelance-web-design",
-    "lint": "npm run lint --prefix freelance-web-design",
-    "install:all": "npm install --prefix freelance-web-design"
+    "start": "npm start --prefix price-prediction-system/frontend",
+    "build": "npm run build --prefix price-prediction-system/frontend",
+    "test": "npm test --prefix price-prediction-system/frontend"
   },
   "keywords": [
-    "nextjs",
-    "tailwind",
-    "web-design",
-    "freelance",
-    "landing-page",
-    "conversion-optimization",
-    "dark-mode",
-    "typescript"
+    "price-prediction",
+    "prophet-ml",
+    "fastapi",
+    "react19",
+    "ecommerce-arbitrage",
+    "retail-intelligence"
   ],
-  "author": "Alex Vance <alex@valence-studio.dev>",
+  "author": "Satwik Chaurasiya & PriceSpy Contributors",
   "license": "MIT"
 }
