@@ -22,10 +22,11 @@ def get_db():
 
 def init_db():
     # Ensure all models are imported and registered with Base.metadata
-    from app.models import User, Alert, Product, PlatformListing
+    from app.models import User, Alert, Product, PlatformListing, AnalyticsEvent, AuditErrorLog
     Base.metadata.create_all(bind=engine)
     with engine.connect() as conn:
         try:
+            # Alerts migrations
             res = conn.execute(text("PRAGMA table_info(alerts)")).fetchall()
             existing_cols = [r[1] for r in res]
             if "platform" not in existing_cols:
@@ -34,6 +35,24 @@ def init_db():
                 conn.execute(text("ALTER TABLE alerts ADD COLUMN current_price FLOAT DEFAULT 0.0"))
             if "store_url" not in existing_cols:
                 conn.execute(text("ALTER TABLE alerts ADD COLUMN store_url VARCHAR"))
+
+            # Users migrations
+            res_user = conn.execute(text("PRAGMA table_info(users)")).fetchall()
+            user_cols = [r[1] for r in res_user]
+            if "is_verified" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT 0"))
+            if "verification_token" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN verification_token VARCHAR"))
+            if "reset_token" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN reset_token VARCHAR"))
+            if "reset_token_expiry" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN reset_token_expiry TIMESTAMP"))
+            if "has_completed_onboarding" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN has_completed_onboarding BOOLEAN DEFAULT 0"))
+            if "created_at" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN created_at TIMESTAMP"))
+
             conn.commit()
         except Exception as e:
             print(f"Migration notice: {e}")
+

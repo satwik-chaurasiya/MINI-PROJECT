@@ -8,11 +8,11 @@ import sys
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")  # allow ₹/emoji on Windows cp1252 consoles
 
-# SMTP Configuration (Loaded from environment variables with safe defaults)
-SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER = os.getenv("SMTP_USER", "your_email@gmail.com")
-SMTP_PASS = os.getenv("SMTP_PASS", "your_app_password")
+# SMTP Configuration (Use environment variables in production)
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 587
+SMTP_USER = "your_email@gmail.com"
+SMTP_PASS = "your_app_password"
 
 # Resolve project root: services -> app -> backend -> project root
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))

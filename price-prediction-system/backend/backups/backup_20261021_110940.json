@@ -1,0 +1,262 @@
+{
+  "timestamp": "2026-10-21T11:09:40.945193",
+  "users": [
+    {
+      "id": 1,
+      "email": "test_user_1791435560@example.com",
+      "is_verified": false,
+      "has_completed_onboarding": false,
+      "created_at": null
+    },
+    {
+      "id": 2,
+      "email": "guest@pricespy.io",
+      "is_verified": false,
+      "has_completed_onboarding": false,
+      "created_at": null
+    },
+    {
+      "id": 3,
+      "email": "test_1792580867@pricespy.com",
+      "is_verified": false,
+      "has_completed_onboarding": false,
+      "created_at": "2026-10-21T11:07:48.416692"
+    },
+    {
+      "id": 4,
+      "email": "test_1792580966@pricespy.com",
+      "is_verified": true,
+      "has_completed_onboarding": false,
+      "created_at": "2026-10-21T11:09:26.936622"
+    }
+  ],
+  "products": [
+    {
+      "id": "prod_5029ee84",
+      "name": "Apple",
+      "category": "Electronics",
+      "platform": "Amazon",
+      "current_price": 76999.0,
+      "predicted_low": 75582.15,
+      "verdict": "BUY NOW"
+    },
+    {
+      "id": "prod_e711f94f",
+      "name": "Flip Cover Back Case for Apple iPhone 15 Pro | Premium Leather Finish | Inbuilt Pockets & Stand | Flip Cover Back Case for Apple iPhone 15 Pro (Coffee)",
+      "category": "Electronics",
+      "platform": "Amazon",
+      "current_price": 179.0,
+      "predicted_low": 71.6,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_f9fc9e63",
+      "name": "Apple",
+      "category": "Electronics",
+      "platform": "Amazon",
+      "current_price": 126990.0,
+      "predicted_low": 119941.25,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_79cebbf1",
+      "name": "for iPhone 15 Pro |Convert to 17 pro /17 Pro Max Style Premium Back Glass Converter Cover Magnetic Case for iPhone 15 Pro |Convert to 17 pro /17 Pro Max (Silver)",
+      "category": "Electronics",
+      "platform": "Amazon",
+      "current_price": 489.0,
+      "predicted_low": 195.6,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_312f9128",
+      "name": "Lenovo IdeaPad Slim 3 Smartchoice 13th Gen, Core i7-13620H, 16GB RAM, 512GB SSD, WUXGA IPS, 15.3 inch (38.8cm), Windows 11, Office 24, Grey, 1.6Kg, 83K1016UIN, Top Metal Cover, Backlit KB, Laptop",
+      "category": "Electronics",
+      "platform": "Amazon",
+      "current_price": 57490.0,
+      "predicted_low": 48183.01,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_1036ba3c",
+      "name": "Itel Zeno 300 | 6000mAh Mega Battery Smartphone | 18W Type-C Fast Charging | 6.56\u201d HD+ 90Hz Display | Unisoc T7100 Octa-Core | 4GB + 8GB RAM, 64GB Storage | Android 16 Go | Silver Mist",
+      "category": "Electronics",
+      "platform": "Amazon",
+      "current_price": 28998.0,
+      "predicted_low": 19526.03,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_edd44389",
+      "name": "boAt Rockerz 650 Pro, Touch/Swipe Controls, Dolby Audio, 80Hrs Battery, 2Mics ENx, Fast Charge, App Support, Dual Pair, Bluetooth Over Ear Headphones with Mic(Starry Night)",
+      "category": "Electronics",
+      "platform": "Amazon",
+      "current_price": 1399.0,
+      "predicted_low": 559.6,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_7bb66a7d",
+      "name": "Autocomplete: The Book",
+      "category": "Electronics",
+      "platform": "Amazon",
+      "current_price": 1222.0,
+      "predicted_low": 488.8,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_f969d826",
+      "name": "Apple iPhone 18 Pro (Burgundy, 256 GB)",
+      "category": "Electronics",
+      "platform": "Flipkart",
+      "current_price": 164900.0,
+      "predicted_low": 163601.56,
+      "verdict": "BUY NOW"
+    },
+    {
+      "id": "prod_11003d56",
+      "name": "iPhone 18 Pro (256 GB) - Silver",
+      "category": "Electronics",
+      "platform": "Amazon",
+      "current_price": 164900.0,
+      "predicted_low": 163878.67,
+      "verdict": "BUY NOW"
+    },
+    {
+      "id": "prod_3316623b",
+      "name": "OPPO K13 5G with 7000mAh and 80W SUPERVOOC Charger In-The-Box (Prism Black, 128 GB)",
+      "category": "Electronics",
+      "platform": "Flipkart",
+      "current_price": 22999.0,
+      "predicted_low": 21411.79,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_99606a3c",
+      "name": "Back Cover Silicon Flexible Shockproof Anti Scratch Back Cover for Oppo K13 5G - Black",
+      "category": "Electronics",
+      "platform": "Amazon",
+      "current_price": 178.0,
+      "predicted_low": -482.64,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_59eb0963",
+      "name": "DELL 15 Inspiron Intel Core 3 100U - (8 GB/512 GB SSD/Windows 11 Home) DC15250 Thin and Light Laptop",
+      "category": "Electronics",
+      "platform": "Flipkart",
+      "current_price": 57990.0,
+      "predicted_low": 53001.49,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_0570ecae",
+      "name": "DELL Vostro 1550 65w Original 65 W Adapter",
+      "category": "Electronics",
+      "platform": "Flipkart",
+      "current_price": 1768.0,
+      "predicted_low": 1624.19,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_ca9e99e5",
+      "name": "59Eb0963",
+      "category": "Electronics",
+      "platform": "Amazon",
+      "current_price": 56596.0,
+      "predicted_low": 52399.82,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_c9eeb2d6",
+      "name": "iPhone 18 Pro (256 GB) - Black",
+      "category": "Electronics",
+      "platform": "Amazon",
+      "current_price": 164900.0,
+      "predicted_low": 150550.45,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_8943fc04",
+      "name": "iPhone 17 Silicone Magsafe Case | Shock Proof Design & Camera Protection | Premium Rubberised Apple iPhone 17 Cover (Microfiber Lining) | Magnetic Liquid Silicone - Black",
+      "category": "Electronics",
+      "platform": "Amazon",
+      "current_price": 499.0,
+      "predicted_low": 453.62,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_e3c92703",
+      "name": "ADICARE PRATHAM Urine Test Strip 2 Parameter Protein&Glucose for Diabetes & Kidney Check Ph Test Strip",
+      "category": "Electronics",
+      "platform": "Flipkart",
+      "current_price": 252.0,
+      "predicted_low": 229.4,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_2f54b45b",
+      "name": "Apple iPhone 15 (Blue, 128 GB)",
+      "category": "Electronics",
+      "platform": "Flipkart",
+      "current_price": 70999.0,
+      "predicted_low": 64624.4,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_43f2c670",
+      "name": "Compatible for iPhone 15 Cover Case Scratch Resistant Premium Glass Finish Slim Fit Protective Back Cover Shockproof Camera Guard Magsafe iPhone 15 Cover (Orange) (Blue,)",
+      "category": "Electronics",
+      "platform": "Amazon",
+      "current_price": 284.0,
+      "predicted_low": 260.47,
+      "verdict": "WAIT"
+    },
+    {
+      "id": "prod_iphone15_128",
+      "name": "Apple iPhone 15 (128 GB, Black)",
+      "category": "Smartphones",
+      "platform": "Amazon",
+      "current_price": 65999.0,
+      "predicted_low": 60124.02,
+      "verdict": "WAIT"
+    }
+  ],
+  "alerts": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "product_id": "prod_test123",
+      "product_name": "iPhone 15",
+      "platform": "Amazon",
+      "target_price": 50000.0,
+      "current_price": 0.0
+    },
+    {
+      "id": 3,
+      "user_id": 2,
+      "product_id": "test_flipkart_prod",
+      "product_name": "Apple iPhone 15 Pro (Flipkart)",
+      "platform": "Flipkart",
+      "target_price": 75000.0,
+      "current_price": 79999.0
+    },
+    {
+      "id": 4,
+      "user_id": 2,
+      "product_id": "test_walmart_prod",
+      "product_name": "Apple iPhone 15 Pro (Walmart)",
+      "platform": "Walmart",
+      "target_price": 75000.0,
+      "current_price": 79999.0
+    },
+    {
+      "id": 5,
+      "user_id": 2,
+      "product_id": "test_ebay_prod",
+      "product_name": "Apple iPhone 15 Pro (eBay)",
+      "platform": "eBay",
+      "target_price": 75000.0,
+      "current_price": 79999.0
+    }
+  ]
+}
