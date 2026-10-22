@@ -78,14 +78,15 @@ When people think about predicting prices with AI, their first thought is usuall
 Here's why: retail prices don't behave like stock tickers or natural speech. A gadget's price sits completely flat for three months, plunges 25% for four days during Diwali or Big Billion Days, and snaps right back to retail. Deep neural networks either overfit the historical training noise or smooth that four-day dip into a gentle slope—completely missing the flash sale your user wanted to catch.
 
 Prophet works because it decomposes time series into interpretable, additive/multiplicative pieces:
-$$\text{Price} = \text{Trend} \times \left(1 + \text{Weekly Habits}\right) \times \left(1 + \text{Payday Surge}\right) \times \left(1 + \text{Festive Drop}\right)$$
 
-We can feed Prophet an exact retail calendar (Diwali, Prime Day, Republic Day, Black Friday) along with lead and lag impact windows. When the model projects a price drop, it isn't an opaque black box. It tells you the exact reason: *"We expect a dip because Diwali festival sales kick off in 8 days."* Just as importantly, Prophet gives us empirical confidence bands ($\hat{y}_{\text{lower}}$ and $\hat{y}_{\text{upper}}$), so shoppers get an honest confidence range rather than false mathematical precision.
+> **Price = Trend × (1 + Weekly Habits) × (1 + Payday Surge) × (1 + Festive Drop)**
+
+We can feed Prophet an exact retail calendar (Diwali, Prime Day, Republic Day, Black Friday) along with lead and lag impact windows. When the model projects a price drop, it isn't an opaque black box. It tells you the exact reason: *"We expect a dip because Diwali festival sales kick off in 8 days."* Just as importantly, Prophet gives us empirical confidence bands (lower and upper bounds: `ŷ_lower` to `ŷ_upper`), so shoppers get an honest confidence range rather than false mathematical precision.
 
 ### 2. Why Multiplicative Seasonality instead of Additive?
-This was an easy decision once we looked at the data. In an **additive model**, seasonal adjustments are treated as flat rupee amounts ($y = \text{Trend} + \text{Discount}$). If the algorithm learns that festive season sales average ₹3,000 off, it applies that same ₹3,000 drop whether you're looking at a ₹12,000 budget smartphone or a ₹1,50,000 workstation.
+This was an easy decision once we looked at the data. In an **additive model**, seasonal adjustments are treated as flat rupee amounts (`Price = Trend + Discount`). If the algorithm learns that festive season sales average ₹3,000 off, it applies that same ₹3,000 drop whether you're looking at a ₹12,000 budget smartphone or a ₹1,50,000 workstation.
 
-In reality, e-commerce discounts are **percentage-based** (usually 10% to 30% off). With **multiplicative seasonality** ($y = \text{Trend} \times (1 + \text{Seasonality})$), a 20% festival drop scales naturally with the base price:
+In reality, e-commerce discounts are **percentage-based** (usually 10% to 30% off). With **multiplicative seasonality** (`Price = Trend × (1 + Seasonality)`), a 20% festival drop scales naturally with the base price:
 - On a ₹12,000 budget phone, it projects a ₹2,400 drop.
 - On a ₹1,50,000 laptop, it projects a ₹30,000 drop.
 
@@ -243,21 +244,21 @@ flowchart TD
     ChronoSort --> ModelInit["Initialize Facebook Prophet v3.2 Model"]:::math
     
     subgraph MultiplicativeDecomposition ["Prophet Mathematical Framework"]
-        ModelInit --> Growth["Linear Growth Trend: g_t"]:::math
-        ModelInit --> WeeklySeason["Weekly Seasonality: s_weekly"]:::math
-        ModelInit --> MonthlyFourier["Monthly Payday Harmonics: Period=30.5d, Order=5"]:::math
-        ModelInit --> HolidayCalendar["Retail Festival Calendar: Diwali, Prime Day, Republic Day, Black Friday"]:::math
+        ModelInit --> Growth["Linear Growth Trend: g(t)"]:::math
+        ModelInit --> WeeklySeason["Weekly Seasonality: s(t)"]:::math
+        ModelInit --> MonthlyFourier["Payday Fourier Harmonics: s_monthly(t) (Order=5)"]:::math
+        ModelInit --> HolidayCalendar["Retail Festival Calendar: h(t) (Diwali, Prime Day, Black Friday)"]:::math
         
         Growth & WeeklySeason & MonthlyFourier & HolidayCalendar --> Equation["y(t) = g(t) × (1 + s(t)) × (1 + h(t)) + ε_t"]:::math
     end
 
     Equation --> Fitting["Fit Model on Historical Price Curve"]:::math
-    Fitting --> MakeFuture["Generate 30-Day Out-of-Sample Future DataFrame"]:::math
+    Fitting --> MakeFuture["Generate 30-Day Future Window<br/>(Out-of-Sample Horizon)"]:::math
     MakeFuture --> RawForecast["Raw Prediction Matrix: yhat, yhat_lower, yhat_upper"]:::math
     
     subgraph HygieneGuardrails ["Financial Anomaly Filtering"]
-        RawForecast --> FloorClip["Enforce Proportional Floor: yhat = max(yhat, 0.40 × CurrentPrice)"]:::clean
-        FloorClip --> IntervalClip["Clip Uncertainty Bands: lower >= 0.34 × CurrentPrice"]:::clean
+        RawForecast --> FloorClip["Enforce Proportional Floor:<br/>yhat = max(yhat, 0.40 × CurrentPrice)"]:::clean
+        FloorClip --> IntervalClip["Clip Uncertainty Bands:<br/>ŷ_lower ≥ 0.34 × CurrentPrice"]:::clean
     end
 
     IntervalClip --> HorizonExtraction["Horizon Window Slicing"]:::output
@@ -434,33 +435,45 @@ graph TD
     classDef comp fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
     classDef service fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#f8fafc;
 
-    App["App.js (Root Shell)"]:::root
+    App["💻 App.js (Root Shell)"]:::root
 
-    %% Global Providers & Shell Components
-    App --> Router["BrowserRouter (React Router v6)"]:::root
-    App --> Nav["Floating Glass Navbar (Logo, Status Pill, Nav Links)"]:::root
-    App --> PageTracker["PageViewTracker (Telemetry Listener)"]:::service
-    App --> ToastHost["Toast Container (Floating Alerts)"]:::comp
-    App --> Onboarding["OnboardingModal (3-Step Guided Tour)"]:::comp
-    App --> ErrorBound["ErrorBoundary (Global Crash Interceptor)"]:::comp
+    subgraph ShellLayer ["Global Providers & Application Shell"]
+        Router["🧭 BrowserRouter (React Router v6)"]:::root
+        Nav["✨ Floating Glass Navbar (Status Pill)"]:::comp
+        ToastHost["🔔 Toast Container (Floating Alerts)"]:::comp
+        Onboarding["🗺️ OnboardingModal (3-Step Tour)"]:::comp
+        ErrorBound["🛡️ ErrorBoundary Crash Interceptor"]:::comp
+        PageTracker["📊 PageViewTracker Listener"]:::service
+    end
 
-    %% Routed Pages
-    Router --> Landing["LandingPage (/): Hero, Telemetry HUD, Instant Search, Trending Deals"]:::route
-    Router --> Compare["ComparePage (/compare): 4-Platform Matrix, Cheapest Badge, Track Actions"]:::route
-    Router --> Product["ProductDetail (/product/:id): Recharts Dual-Line Chart, Horizons, Buy/Wait"]:::route
-    Router --> Dashboard["Dashboard (/dashboard): RLS Watchlists, Savings Summary, Email Resend"]:::route
-    Router --> Admin["AdminDashboard (/admin): Hardware Vitals, Latency Table, Backup UI, Logs"]:::route
-    Router --> Auth["AuthPage (/auth): Login, Registration, 15-Min Password Reset"]:::route
-    Router --> Privacy["PrivacyPage (/privacy): GDPR, CCPA, Data Retention Disclosures"]:::route
-    Router --> Terms["TermsPage (/terms): Commercial Terms, Forecasting Disclaimers"]:::route
-    Router --> NotFound["NotFoundPage (*): Animated SVG Compass & Recovery Links"]:::route
+    App --> ShellLayer
 
-    %% Shared UI-UX Pro Max Components
-    Landing & Compare & Product & Dashboard & Admin --> Skeletons["LoadingSkeleton (Card, Table, Chart Shimmers)"]:::comp
-    Compare & Dashboard & Admin --> Empty["EmptyState (Accessible Zero-Data Visuals + CTAs)"]:::comp
-    Dashboard --> DeleteModal["DeleteAccountModal (Typed 'DELETE' Confirmation)"]:::comp
-    Product & Compare & Dashboard --> APIClient["api.js (Axios Instance + Bearer Token Auto-Injection)"]:::service
-    PageTracker & Landing & Compare & Product --> AnalyticsClient["analytics.js (Async User Interaction Logger)"]:::service
+    subgraph UserRoutes ["Primary Shopping Routes"]
+        Landing["🏠 LandingPage (/)<br/>Hero, HUD, Deals"]:::route
+        Compare["⚖️ ComparePage (/compare)<br/>4-Platform Side-by-Side"]:::route
+        Product["📈 ProductDetail (/product/:id)<br/>Recharts Dual-Line Forecast"]:::route
+        Dashboard["👤 Dashboard (/dashboard)<br/>RLS Watchlist & Savings"]:::route
+    end
+
+    subgraph SystemRoutes ["Auth, Admin & Utility Routes"]
+        Admin["🛠️ AdminDashboard (/admin)<br/>Vitals, Latencies, Backups"]:::route
+        Auth["🔑 AuthPage (/auth)<br/>Login & 15m Token Reset"]:::route
+        Legal["📄 Legal & 404 (/privacy, /terms, *)<br/>GDPR, Disclaimers, Compass"]:::route
+    end
+
+    Router --> UserRoutes
+    Router --> SystemRoutes
+
+    subgraph SharedKit ["Shared UI Components & API Services"]
+        Skeletons["⏳ LoadingSkeleton (Shimmers)"]:::comp
+        Empty["📦 EmptyState (Accessible Zero-Data)"]:::comp
+        Modals["🔒 DeleteAccountModal ('DELETE' Dialog)"]:::comp
+        APIClient["⚡ api.js (Axios + JWT Interceptor)"]:::service
+        AnalyticsClient["📝 analytics.js (Telemetry Logger)"]:::service
+    end
+
+    UserRoutes --> SharedKit
+    SystemRoutes --> SharedKit
 ```
 
 ---
@@ -640,13 +653,14 @@ Prices don't drift along gentle straight lines. Retailers run targeted discounts
 
 ### 2. Multiplicative Seasonality: The Math
 To model percentage discounts accurately across items of any price, PriceSpy uses a multiplicative decomposition:
-$$y(t) = g(t) \times \left(1 + s(t)\right) \times \left(1 + h(t)\right) + \epsilon_t$$
+
+> **y(t) = g(t) × (1 + s(t)) × (1 + h(t)) + ε_t**
 
 Where:
-- $g(t)$ is the baseline trend curve (e.g. general price decay over a product's lifecycle).
-- $s(t)$ models recurring calendar cycles, like the fact that people shop more on weekends and during month-end paydays.
-- $h(t)$ is the holiday calendar effect, injecting discounts for specific festival dates.
-- $\epsilon_t$ is the residual error margin.
+- `g(t)` is the baseline trend curve (general price decay over a product's lifecycle).
+- `s(t)` models recurring calendar cycles (weekend shopping habits and month-end paydays).
+- `h(t)` is the holiday calendar effect (discounts injected for specific festival dates).
+- `ε_t` is the residual error margin.
 
 Because the terms are multiplied together, a 15% festival drop automatically calculates as a ₹1,500 drop on a ₹10,000 item and a ₹15,000 drop on a ₹1,00,000 item.
 
@@ -666,13 +680,16 @@ Because the model knows these dates ahead of time, it recognizes seasonal dips a
 
 ### 4. Payday Fourier Harmonics
 To capture month-end buying surges, we inject a custom Fourier series with a period of 30.5 days:
-$$s_{\text{monthly}}(t) = \sum_{n=1}^{5} \left( a_n \cos\left(\frac{2\pi n t}{30.5}\right) + b_n \sin\left(\frac{2\pi n t}{30.5}\right) \right)$$
+
+> **s_monthly(t) = Σ [ a_n · cos(2π n t / 30.5) + b_n · sin(2π n t / 30.5) ]** *(evaluated across n = 1 to 5 harmonics)*
+
 This lets the model spot subtle price bumps right when salaries hit bank accounts.
 
 ### 5. Uncertainty Bands & Confidence Scoring
-Prophet produces an 85% confidence ribbon ($\hat{y}_{\text{lower}}$ and $\hat{y}_{\text{upper}}$). We compute an empirical confidence score from the width of this ribbon:
-$$\text{Spread} = |\hat{y}_{\text{upper}} - \hat{y}_{\text{lower}}|$$
-$$\text{Confidence Score} = \text{clip}\left(100 - \left(\frac{\text{Spread}}{\hat{y}} \times 35\right), 88, 98\right)$$
+Prophet produces an 85% empirical confidence ribbon with lower and upper bounds (`ŷ_lower` and `ŷ_upper`). We compute a confidence percentage directly from the ribbon spread:
+
+> **Spread = |ŷ_upper - ŷ_lower|**  
+> **Confidence Score = clip(100 - ((Spread / ŷ) × 35), 88, 98)**
 
 If market quotes are stable, the ribbon is narrow and confidence sits near 98%. If historical quotes swing erratically, the ribbon widens and confidence dials back toward 88%.
 
