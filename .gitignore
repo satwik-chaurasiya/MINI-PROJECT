@@ -1,0 +1,85 @@
+# ==========================================
+# PriceSpy Pro - Git Ignore Configuration
+# ==========================================
+
+# 1. Environment & Secret Variables
+.env
+.env.*
+!.env.example
+*.env
+**/.env
+**/.env.*
+!**/.env.example
+
+# 2. Python Virtual Environments & Packages
+venv/
+**/venv/
+.venv/
+**/.venv/
+ENV/
+env/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# 3. Python Bytecode & Cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 4. Databases, Local Storage & Backups
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+pricespy.db
+**/pricespy.db
+backups/
+**/backups/*.json
+!**/backups/.gitkeep
+
+# 5. Node / React Dependencies & Build Outputs
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+build/
+**/build/
+coverage/
+**/coverage/
+
+# 6. IDE, Editors & System Artifacts
+.vscode/
+**/.vscode/
+.idea/
+**/.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# 7. Audit Reports & Scratch Files
+security_audit_report.html
+**/security_audit_report.html
+*.log

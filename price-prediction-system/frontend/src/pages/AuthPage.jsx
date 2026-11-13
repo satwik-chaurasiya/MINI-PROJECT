@@ -3,10 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { Lock, Mail, CheckCircle2, AlertCircle, ArrowRight, Loader2, KeyRound, ShieldCheck } from 'lucide-react';
 import api from '../services/api';
 import { trackEvent } from '../services/analytics';
+import usePageSEO from '../hooks/usePageSEO';
+import PriceSpyLogo from '../components/PriceSpyLogo';
 
 export default function AuthPage({ onLoginSuccess }) {
   // Mode: 'login' | 'register' | 'forgot' | 'reset'
   const [mode, setMode] = useState('login');
+
+  usePageSEO({
+    title: mode === 'login' ? 'Sign In | PriceSpy Pro' : mode === 'register' ? 'Create Account | PriceSpy Pro' : 'Account Recovery | PriceSpy Pro',
+    description: 'Secure authentication gateway for PriceSpy price tracking, custom alerts, and historical volatility forecasts.',
+    canonicalUrl: 'https://pricespy.com/auth',
+    noIndex: true,
+  });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resetToken, setResetToken] = useState('');
@@ -120,15 +129,15 @@ export default function AuthPage({ onLoginSuccess }) {
   return (
     <div className="max-w-md mx-auto my-12 pro-card p-8 rounded-3xl shadow-2xl relative border-white/10">
       <div className="text-center mb-6 space-y-1">
-        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center mb-3">
-          {mode === 'forgot' || mode === 'reset' ? <KeyRound className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+        <div className="flex justify-center mb-4">
+          <PriceSpyLogo size={48} animated={true} />
         </div>
-        <h2 className="text-2xl font-bold font-display text-white">
+        <h1 className="text-2xl font-bold font-display text-white">
           {mode === 'login' && 'Welcome Back'}
           {mode === 'register' && 'Create Your Account'}
           {mode === 'forgot' && 'Reset Password'}
           {mode === 'reset' && 'Set New Password'}
-        </h2>
+        </h1>
         <p className="text-gray-400 text-xs font-light">
           {mode === 'login' && 'Access real-time price forecasts & multi-store tracking'}
           {mode === 'register' && 'Join PriceSpy to predict and track price drops across 4 platforms'}

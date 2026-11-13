@@ -2,42 +2,107 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="%PUBLIC_URL%/favicon.svg" />
+    <link rel="alternate icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#171717" />
+    
+    <!-- Primary SEO Metadata -->
+    <title>PriceSpy Pro | Predictive E-Commerce Price Intelligence & Tracker</title>
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Track real-time prices and forecast market drops across Amazon India, Flipkart, Walmart, and eBay using Bayesian time-series machine learning."
     />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+    <link rel="canonical" href="https://pricespy.com/" />
+    <meta name="robots" content="index, follow" />
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
+    <!-- Open Graph / Facebook (Essential #8) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://pricespy.com/" />
+    <meta property="og:site_name" content="PriceSpy Pro" />
+    <meta property="og:title" content="PriceSpy Pro | Predictive E-Commerce Price Intelligence & Tracker" />
+    <meta property="og:description" content="Track real-time prices and forecast market drops across Amazon India, Flipkart, Walmart, and eBay using Bayesian time-series machine learning." />
+    <meta property="og:image" content="https://pricespy.com/og-preview.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card Metadata -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@PriceSpyPro" />
+    <meta name="twitter:title" content="PriceSpy Pro | Predictive E-Commerce Price Intelligence & Tracker" />
+    <meta name="twitter:description" content="Track real-time prices and forecast market drops across Amazon, Flipkart, Walmart, and eBay using Bayesian time-series machine learning." />
+    <meta name="twitter:image" content="https://pricespy.com/og-preview.png" />
+
+    <!-- Google Search Console Verification (Essential #18) -->
+    <meta name="google-site-verification" content="%REACT_APP_GSC_VERIFICATION_TOKEN%" />
+
+    <!-- Organization & WebSite JSON-LD Schema (Essential #14) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://pricespy.com/#organization",
+            "name": "PriceSpy Pro",
+            "url": "https://pricespy.com",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://pricespy.com/logo192.png",
+              "width": 192,
+              "height": 192
+            },
+            "description": "Predictive e-commerce price intelligence and multi-store alert engine.",
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "email": "support@pricespy.com",
+              "contactType": "customer service",
+              "availableLanguage": ["English", "Hindi"]
+            },
+            "sameAs": [
+              "https://twitter.com/PriceSpyPro",
+              "https://github.com/satwik-chaurasiya/MINI-PROJECT"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://pricespy.com/#website",
+            "url": "https://pricespy.com",
+            "name": "PriceSpy Pro",
+            "publisher": {
+              "@id": "https://pricespy.com/#organization"
+            },
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://pricespy.com/compare?q={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }
+          }
+        ]
+      }
+    </script>
+
+    <!-- Google Analytics 4 (Essential #17) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=%REACT_APP_GA_MEASUREMENT_ID%"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      // Only configure if measurement ID is supplied
+      if ('%REACT_APP_GA_MEASUREMENT_ID%' && !'%REACT_APP_GA_MEASUREMENT_ID%'.startsWith('%')) {
+        gtag('config', '%REACT_APP_GA_MEASUREMENT_ID%');
+      }
+    </script>
+
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>You need to enable JavaScript to run PriceSpy Pro predictive pricing engine.</noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>

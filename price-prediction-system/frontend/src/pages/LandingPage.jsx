@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Search, TrendingDown, ArrowRight,
   Smartphone, Laptop, Headphones, Gamepad2, Watch, Camera
@@ -7,8 +7,15 @@ import {
 import api from '../services/api';
 import { trackEvent } from '../services/analytics';
 import { CardSkeleton } from '../components/LoadingSkeleton';
+import usePageSEO from '../hooks/usePageSEO';
 
 export default function LandingPage() {
+  usePageSEO({
+    title: 'PriceSpy Pro | Predictive E-Commerce Price Intelligence & Tracker',
+    description: 'Track real-time prices and forecast market drops across Amazon India, Flipkart, Walmart, and eBay using Bayesian time-series machine learning.',
+    canonicalUrl: 'https://pricespy.com/',
+  });
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,15 +82,15 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="text-center pt-8 pb-10 px-4 max-w-4xl mx-auto space-y-6">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-xs font-mono text-gray-300">
-          <span className="h-2 w-2 rounded-full bg-emerald-400 beacon-ring" />
-          <span className="text-emerald-400 font-semibold">Predictive Price Engine</span>
+          <span className="h-2 w-2 rounded-full bg-[#A31C1B] beacon-ring" />
+          <span className="text-rose-400 font-semibold">Predictive Price Engine</span>
           <span className="text-gray-600">•</span>
           <span>4 Platforms Synchronized</span>
         </div>
 
         <h1 className="text-3xl sm:text-4xl md:text-6xl font-display font-extrabold tracking-tight leading-[1.1] text-white">
           Track Price Volatility. <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-400">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-rose-300 to-amber-200">
             Buy at the True Market Low.
           </span>
         </h1>
@@ -95,7 +102,7 @@ export default function LandingPage() {
 
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative z-20">
-          <div className="flex items-center gap-2 p-1.5 rounded-2xl pro-card border-white/10 focus-within:border-emerald-400 transition-all">
+          <div className="flex items-center gap-2 p-1.5 rounded-2xl pro-card border-white/10 focus-within:border-[#A31C1B] transition-all">
             <div className="relative flex-1 flex items-center pl-3">
               <Search className="h-4 w-4 text-gray-400 shrink-0" />
               <input 
@@ -130,7 +137,7 @@ export default function LandingPage() {
                   }}
                 >
                   <span className="text-gray-200 font-medium truncate">{s.title}</span>
-                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded shrink-0">
+                  <span className="text-[10px] font-mono text-rose-400 bg-[#A31C1B]/15 border border-[#A31C1B]/30 px-2 py-0.5 rounded shrink-0">
                     {s.category}
                   </span>
                 </div>
@@ -204,31 +211,34 @@ export default function LandingPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {products.map((item) => (
-              <div 
+              <Link 
                 key={item.id}
-                onClick={() => navigate(`/product/${item.id}`)}
-                className="pro-card p-5 rounded-2xl cursor-pointer flex flex-col justify-between group transition-all"
+                to={`/product/${item.id}`}
+                className="pro-card p-5 rounded-2xl cursor-pointer flex flex-col justify-between group transition-all text-left no-underline"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-white/[0.04] border border-white/10 text-emerald-400 font-semibold">
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-white/[0.04] border border-white/10 text-rose-300 font-semibold">
                       {item.platform}
                     </span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#A31C1B]/15 text-rose-300 border border-[#A31C1B]/30 font-medium">
                       Drop Forecasted
                     </span>
                   </div>
 
-                  {/* Real Image */}
+                  {/* Real Image with lazy loading & dimensions for CWV CLS */}
                   <div className="h-44 bg-white rounded-xl p-4 flex items-center justify-center mb-4 overflow-hidden">
                     <img 
                       src={item.image_url} 
-                      alt={item.name} 
+                      alt={item.name ? `${item.name} - ${item.platform} price tracker` : "E-commerce product image"} 
+                      loading="lazy"
+                      width="200"
+                      height="176"
                       className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
 
-                  <h3 className="font-semibold text-sm text-white line-clamp-2 leading-snug group-hover:text-emerald-400 transition-colors">
+                  <h3 className="font-semibold text-sm text-white line-clamp-2 leading-snug group-hover:text-rose-400 transition-colors">
                     {item.name}
                   </h3>
 
@@ -237,7 +247,7 @@ export default function LandingPage() {
                       <span className="text-gray-400 text-xs font-mono">Current Price:</span>
                       <span className="font-mono text-sm font-bold text-white">₹{item.current_price.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between items-baseline text-emerald-400">
+                    <div className="flex justify-between items-baseline text-rose-400">
                       <span className="text-xs font-mono">Target Low:</span>
                       <span className="font-mono text-sm font-bold">
                         ₹{item.forecasts && item.forecasts[1] ? item.forecasts[1].predicted_low.toLocaleString() : item.current_price.toLocaleString()}
@@ -246,11 +256,11 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-white/[0.06] flex justify-between items-center text-xs font-mono font-semibold text-emerald-400 group-hover:text-teal-300 transition-colors">
+                <div className="mt-5 pt-3 border-t border-white/[0.06] flex justify-between items-center text-xs font-mono font-semibold text-rose-400 group-hover:text-rose-300 transition-colors">
                   <span>Inspect Forecast Horizon</span>
                   <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

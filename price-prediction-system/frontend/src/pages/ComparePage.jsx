@@ -8,9 +8,17 @@ import api from '../services/api';
 import { trackEvent } from '../services/analytics';
 import EmptyState from '../components/EmptyState';
 import { CardSkeleton } from '../components/LoadingSkeleton';
+import Breadcrumbs from '../components/Breadcrumbs';
+import usePageSEO from '../hooks/usePageSEO';
 
 export default function ComparePage() {
   const [query, setQuery] = useState('');
+
+  usePageSEO({
+    title: query ? `Compare "${query}" Prices Across 4 Stores | PriceSpy Pro` : 'Compare Marketplace Prices Across 4 Stores | PriceSpy Pro',
+    description: 'Real-time multi-store price comparison across Amazon India, Flipkart, Walmart, and eBay. Find the lowest verified listing with genuine store links.',
+    canonicalUrl: 'https://pricespy.com/compare',
+  });
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [platformSummary, setPlatformSummary] = useState([]);
@@ -130,6 +138,8 @@ export default function ComparePage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-200">
+      <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Compare Marketplace Prices' }]} />
+
       {/* Header */}
       <div className="text-center space-y-3 max-w-2xl mx-auto">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-emerald-400 text-xs font-mono">
@@ -150,7 +160,7 @@ export default function ComparePage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search product (e.g., iPhone 15, MacBook Air, Sony WH-1000XM5)..."
-            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl py-3.5 pl-11 pr-24 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-400 transition shadow-lg"
+            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl py-3.5 pl-11 pr-24 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#A31C1B] transition shadow-lg"
           />
           <Search className="absolute left-4 top-4 w-4 h-4 text-gray-400" />
           <button
@@ -177,7 +187,7 @@ export default function ComparePage() {
             onClick={() => setSelectedPlatform(selectedPlatform === plat.platform ? 'All' : plat.platform)}
             className={`pro-card p-3.5 rounded-xl cursor-pointer transition ${
               selectedPlatform === plat.platform 
-                ? 'border-emerald-500 bg-emerald-500/10' 
+                ? 'border-[#A31C1B] bg-[#A31C1B]/15 shadow-[0_0_15px_rgba(163,28,27,0.25)]' 
                 : 'hover:border-white/20'
             }`}
           >
@@ -185,7 +195,7 @@ export default function ComparePage() {
               <span className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${getPlatformBadgeStyle(plat.platform)}`}>
                 {plat.platform}
               </span>
-              <span className="text-[10px] text-emerald-400 font-mono">Live Sync</span>
+              <span className="text-[10px] text-rose-300 font-mono">Live Sync</span>
             </div>
             <div className="mt-2 text-xs text-gray-400">
               Quotes: <strong className="text-white font-mono">{plat.quotes_saved ?? 12}</strong>
@@ -208,7 +218,7 @@ export default function ComparePage() {
                 onClick={() => setSelectedPlatform(plat)}
                 className={`px-3 py-1 rounded-lg text-xs font-medium transition cursor-pointer ${
                   selectedPlatform === plat
-                    ? 'bg-emerald-500 text-slate-950 font-semibold'
+                    ? 'bg-[#A31C1B] text-white font-semibold shadow-md'
                     : 'bg-white/[0.04] text-gray-300 hover:text-white border border-white/[0.06]'
                 }`}
               >

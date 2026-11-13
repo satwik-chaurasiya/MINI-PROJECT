@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Sparkles, TrendingDown, Scale, Bell, ArrowRight, Check } from 'lucide-react';
+import { Sparkles, Scale, Bell, ArrowRight, Check } from 'lucide-react';
 import api from '../services/api';
+import PriceSpyLogo from './PriceSpyLogo';
 
 export default function OnboardingModal({ isOpen, onClose }) {
   const [step, setStep] = useState(1);
@@ -23,10 +24,10 @@ export default function OnboardingModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="pro-card rounded-2xl max-w-md w-full p-6 sm:p-8 space-y-6 relative border-emerald-500/30 shadow-2xl">
+      <div className="pro-card rounded-2xl max-w-md w-full p-6 sm:p-8 space-y-6 relative border-[#A31C1B]/35 shadow-2xl">
         {/* Step indicator */}
         <div className="flex items-center justify-between text-xs font-mono text-gray-400">
-          <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
+          <span className="text-rose-400 font-semibold flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5" />
             Quick Tour
           </span>
@@ -36,8 +37,8 @@ export default function OnboardingModal({ isOpen, onClose }) {
         {/* Step Content */}
         {step === 1 && (
           <div className="space-y-4 text-center py-2 animate-in fade-in duration-150">
-            <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center">
-              <TrendingDown className="w-8 h-8" />
+            <div className="flex justify-center mb-1">
+              <PriceSpyLogo size={56} animated={true} />
             </div>
             <h3 className="text-xl font-bold font-display text-white">AI Price Forecasting</h3>
             <p className="text-xs text-gray-400 leading-relaxed">
@@ -73,7 +74,7 @@ export default function OnboardingModal({ isOpen, onClose }) {
         {/* Progress Bar */}
         <div className="w-full bg-white/[0.06] h-1.5 rounded-full overflow-hidden">
           <div 
-            className="bg-emerald-400 h-full transition-all duration-300"
+            className="bg-[#A31C1B] h-full transition-all duration-300"
             style={{ width: `${(step / totalSteps) * 100}%` }}
           />
         </div>

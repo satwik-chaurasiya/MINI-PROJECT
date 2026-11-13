@@ -1,9 +1,19 @@
 import React from 'react';
 import { Scale, AlertCircle, TrendingUp, CheckCircle2 } from 'lucide-react';
+import usePageSEO from '../hooks/usePageSEO';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 export default function TermsPage() {
+  usePageSEO({
+    title: 'Terms of Service & Usage Agreements | PriceSpy Pro',
+    description: 'Read the terms and conditions governing the use of PriceSpy predictive pricing intelligence engine, automated alerts, and API rate limits.',
+    canonicalUrl: 'https://pricespy.com/terms',
+  });
+
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-200">
+      <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Terms of Service' }]} />
+
       <div className="space-y-2 border-b border-white/10 pb-6">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-mono">
           <Scale className="w-3.5 h-3.5" />

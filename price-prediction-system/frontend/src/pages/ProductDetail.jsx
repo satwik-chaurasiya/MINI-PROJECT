@@ -8,6 +8,8 @@ import {
 import api from '../services/api';
 import { trackEvent } from '../services/analytics';
 import { DetailSkeleton } from '../components/LoadingSkeleton';
+import Breadcrumbs from '../components/Breadcrumbs';
+import usePageSEO from '../hooks/usePageSEO';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -17,6 +19,63 @@ export default function ProductDetail() {
   const [alertSuccess, setAlertSuccess] = useState(false);
   const [alertLoading, setAlertLoading] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  usePageSEO({
+    title: product ? `${product.name} Price History & Prediction | PriceSpy Pro` : 'Product Price History | PriceSpy Pro',
+    description: product ? `Track real-time price history and 30-day Bayesian drop predictions for ${product.name} on ${product.platform}. Current price: ₹${product.current_price?.toLocaleString()}.` : 'Track real-time price history and Bayesian drop predictions across major e-commerce platforms.',
+    canonicalUrl: product ? `https://pricespy.com/product/${product.id}` : 'https://pricespy.com/product',
+    ogImage: product?.image_url,
+    ogType: 'product',
+  });
+
+  // Inject Product JSON-LD schema (Essential #14)
+  useEffect(() => {
+    if (!product) return;
+    const schemaId = 'product-jsonld-schema';
+    let scriptTag = document.getElementById(schemaId);
+    if (!scriptTag) {
+      scriptTag = document.createElement('script');
+      scriptTag.id = schemaId;
+      scriptTag.type = 'application/ld+json';
+      document.head.appendChild(scriptTag);
+    }
+
+    const productSchema = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": product.name,
+      "image": product.image_url,
+      "description": `Track real-time market prices and Bayesian forecasting for ${product.name}`,
+      "brand": {
+        "@type": "Brand",
+        "name": product.category || "General"
+      },
+      "aggregateRating": product.rating ? {
+        "@type": "AggregateRating",
+        "ratingValue": product.rating,
+        "reviewCount": product.review_count || 10
+      } : undefined,
+      "offers": {
+        "@type": "Offer",
+        "url": product.store_url || `https://pricespy.com/product/${product.id}`,
+        "priceCurrency": "INR",
+        "price": product.current_price,
+        "priceValidUntil": new Date(Date.now() + 86400000 * 30).toISOString().split('T')[0],
+        "itemCondition": "https://schema.org/NewCondition",
+        "availability": "https://schema.org/InStock",
+        "seller": {
+          "@type": "Organization",
+          "name": product.platform || "Amazon"
+        }
+      }
+    };
+
+    scriptTag.textContent = JSON.stringify(productSchema);
+    return () => {
+      const el = document.getElementById(schemaId);
+      if (el) el.remove();
+    };
+  }, [product]);
 
   useEffect(() => {
     setLoading(true);
@@ -69,6 +128,14 @@ export default function ProductDetail() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
+      <Breadcrumbs 
+        items={[
+          { label: 'Home', path: '/' },
+          { label: 'Price Tracker', path: '/compare' },
+          { label: product.name }
+        ]} 
+      />
+
       {/* Back button */}
       <div>
         <button
@@ -84,7 +151,14 @@ export default function ProductDetail() {
       <div className="pro-card p-6 sm:p-8 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="w-32 h-32 bg-white rounded-xl p-3 shrink-0 flex items-center justify-center">
-            <img src={product.image_url} alt={product.name} className="max-h-full max-w-full object-contain" />
+            <img 
+              src={product.image_url} 
+              alt={`${product.name} - verified listing on ${product.platform}`} 
+              fetchPriority="high"
+              width="128"
+              height="128"
+              className="max-h-full max-w-full object-contain" 
+            />
           </div>
           <div className="space-y-2 text-center sm:text-left">
             <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
@@ -182,19 +256,19 @@ export default function ProductDetail() {
             <AreaChart data={product.chart_data}>
               <defs>
                 <linearGradient id="predictedGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#A31C1B" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="#A31C1B" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
               <XAxis dataKey="date" stroke="#64748b" textAnchor="end" tick={{ fontSize: 11 }} />
               <YAxis stroke="#64748b" domain={['auto', 'auto']} tick={{ fontSize: 11 }} tickFormatter={(v) => `₹${v/1000}k`} />
               <Tooltip 
-                contentStyle={{ backgroundColor: '#0f172a', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', fontSize: '12px' }} 
+                contentStyle={{ backgroundColor: '#171717', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', fontSize: '12px' }} 
                 formatter={(val) => [`₹${Number(val).toLocaleString()}`, 'Price']}
               />
               <Area type="monotone" dataKey="historical" stroke="#f8fafc" strokeWidth={2} fillOpacity={0} name="Historical Price" />
-              <Area type="monotone" dataKey="predicted" stroke="#10b981" strokeWidth={2} strokeDasharray="4 4" fill="url(#predictedGrad)" name="Forecast" />
+              <Area type="monotone" dataKey="predicted" stroke="#A31C1B" strokeWidth={2} strokeDasharray="4 4" fill="url(#predictedGrad)" name="Forecast" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -205,7 +279,7 @@ export default function ProductDetail() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h2 className="text-base font-bold font-display text-white flex items-center gap-2">
-              <Bell className="w-4 h-4 text-emerald-400" />
+              <Bell className="w-4 h-4 text-rose-400" />
               <span>Register Target Price Alert</span>
             </h2>
             <p className="text-xs text-gray-400 mt-0.5">
@@ -221,7 +295,7 @@ export default function ProductDetail() {
               type="number"
               value={targetPrice}
               onChange={(e) => setTargetPrice(e.target.value)}
-              className="w-full bg-white/[0.04] border border-white/10 focus:border-emerald-400 rounded-xl pl-8 pr-4 py-2.5 text-white font-mono text-sm focus:outline-none transition"
+              className="w-full bg-white/[0.04] border border-white/10 focus:border-[#A31C1B] rounded-xl pl-8 pr-4 py-2.5 text-white font-mono text-sm focus:outline-none transition"
               placeholder="Enter target price"
               min="1"
               required

@@ -1,8 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Compass, Home, Search } from 'lucide-react';
+import usePageSEO from '../hooks/usePageSEO';
 
 export default function NotFoundPage() {
+  usePageSEO({
+    title: '404 Page Not Found | PriceSpy Pro',
+    description: 'The requested page or e-commerce listing could not be found or has been moved.',
+    noIndex: true,
+  });
+
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6 space-y-6">
       <div className="w-20 h-20 rounded-3xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-emerald-400 shadow-2xl">

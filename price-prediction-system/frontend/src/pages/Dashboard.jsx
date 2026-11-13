@@ -9,8 +9,16 @@ import { trackEvent } from '../services/analytics';
 import EmptyState from '../components/EmptyState';
 import { TableRowSkeleton } from '../components/LoadingSkeleton';
 import DeleteAccountModal from '../components/DeleteAccountModal';
+import usePageSEO from '../hooks/usePageSEO';
 
 export default function Dashboard() {
+  usePageSEO({
+    title: 'Personal Watchlist & Price Alerts | PriceSpy Pro',
+    description: 'Monitor your tracked products, price drop thresholds, and notification alerts.',
+    canonicalUrl: 'https://pricespy.com/dashboard',
+    noIndex: true,
+  });
+
   const [stats, setStats] = useState({ 
     watching_count: 0, 
     active_alerts: 0, 
@@ -163,7 +171,7 @@ export default function Dashboard() {
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="pro-card p-4 rounded-2xl flex items-center gap-3.5">
-          <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xl text-emerald-400">
+          <div className="p-3 bg-[#06110C] border border-[#A31C1B]/30 rounded-xl text-rose-400">
             <Package className="w-5 h-5" />
           </div>
           <div>
@@ -173,7 +181,7 @@ export default function Dashboard() {
         </div>
 
         <div className="pro-card p-4 rounded-2xl flex items-center gap-3.5">
-          <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xl text-amber-400">
+          <div className="p-3 bg-[#06110C] border border-[#A31C1B]/30 rounded-xl text-amber-400">
             <Bell className="w-5 h-5" />
           </div>
           <div>
@@ -183,7 +191,7 @@ export default function Dashboard() {
         </div>
 
         <div className="pro-card p-4 rounded-2xl flex items-center gap-3.5">
-          <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xl text-sky-400">
+          <div className="p-3 bg-[#06110C] border border-[#A31C1B]/30 rounded-xl text-rose-300">
             <DollarSign className="w-5 h-5" />
           </div>
           <div>
@@ -193,7 +201,7 @@ export default function Dashboard() {
         </div>
 
         <div className="pro-card p-4 rounded-2xl flex items-center gap-3.5">
-          <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xl text-emerald-400">
+          <div className="p-3 bg-[#06110C] border border-[#A31C1B]/30 rounded-xl text-emerald-400">
             <Database className="w-5 h-5" />
           </div>
           <div>

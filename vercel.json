@@ -1,0 +1,11 @@
+{
+  "buildCommand": "cd price-prediction-system/frontend && npm install && npm run build",
+  "outputDirectory": "price-prediction-system/frontend/build",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

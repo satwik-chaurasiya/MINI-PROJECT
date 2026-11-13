@@ -22,7 +22,7 @@ export default function EmptyState({
 
   return (
     <div className="py-14 px-4 text-center flex flex-col items-center justify-center space-y-4">
-      <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-emerald-400 shadow-inner">
+      <div className="w-14 h-14 rounded-2xl bg-[#06110C] border border-[#A31C1B]/30 flex items-center justify-center text-rose-400 shadow-inner">
         <Icon className="w-7 h-7" />
       </div>
       <div className="max-w-sm space-y-1">

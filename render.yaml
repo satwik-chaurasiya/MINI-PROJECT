@@ -1,0 +1,39 @@
+services:
+  # -------------------------------------------------------------
+  # 1. FastAPI Backend + ML Engine (Web Service)
+  # -------------------------------------------------------------
+  - type: web
+    name: pricespy-backend
+    env: python
+    region: oregon
+    plan: free
+    rootDir: price-prediction-system
+    buildCommand: pip install --upgrade pip && pip install -r backend/requirements.txt -r ml_engine/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.12
+      - key: SECRET_KEY
+        generateValue: true
+
+  # -------------------------------------------------------------
+  # 2. React 19 Frontend UI (Static Site)
+  # -------------------------------------------------------------
+  - type: web
+    name: pricespy-frontend
+    env: static
+    region: oregon
+    plan: free
+    rootDir: price-prediction-system/frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          type: web
+          name: pricespy-backend
+          property: url

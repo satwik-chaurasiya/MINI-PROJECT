@@ -13,15 +13,15 @@ export default function Toast({ message, type = 'info', onClose, duration = 4000
   if (!message) return null;
 
   const styles = {
-    success: 'bg-emerald-950/90 border-emerald-500/40 text-emerald-300',
-    error: 'bg-red-950/90 border-red-500/40 text-red-300',
-    info: 'bg-slate-900/90 border-sky-500/40 text-sky-300'
+    success: 'bg-[#06110C]/95 border-emerald-500/40 text-emerald-300',
+    error: 'bg-[#171717]/95 border-[#A31C1B]/60 text-rose-300',
+    info: 'bg-[#171717]/95 border-[#A31C1B]/40 text-rose-200'
   };
 
   const icons = {
     success: <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />,
-    error: <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />,
-    info: <Info className="w-4 h-4 shrink-0 text-sky-400" />
+    error: <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />,
+    info: <Info className="w-4 h-4 shrink-0 text-rose-300" />
   };
 
   return (

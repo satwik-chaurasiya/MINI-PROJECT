@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, Request, Response, status
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from sqlalchemy.orm import Session
@@ -1250,3 +1251,105 @@ def get_admin_metrics(db: Session = Depends(get_db)):
             {"platform": "eBay", "status": "Operational", "mode": "Global Exchange Direct"}
         ]
     }
+
+# -------------------------------------------------------------
+# Contact Form Ingestion (Essential #20)
+# -------------------------------------------------------------
+class ContactSubmission(BaseModel):
+    name: str = Field(..., min_length=2, max_length=120)
+    email: str = Field(..., pattern=EMAIL_REGEX, description="Valid email address")
+    subject: str = Field("General Support", max_length=150)
+    message: str = Field(..., min_length=10, max_length=3000)
+
+@app.post("/api/contact", status_code=status.HTTP_201_CREATED)
+def submit_contact_form(payload: ContactSubmission, db: Session = Depends(get_db)):
+    ticket_id = f"TICK-{secrets.token_hex(4).upper()}"
+    try:
+        # Record submission telemetry in database
+        event = AnalyticsEvent(
+            event_type="contact_inquiry",
+            path="/contact",
+            metadata_json=json.dumps({
+                "ticket_id": ticket_id,
+                "name": payload.name,
+                "email": payload.email,
+                "subject": payload.subject,
+                "message_snippet": payload.message[:150]
+            }),
+            timestamp=datetime.utcnow()
+        )
+        db.add(event)
+        db.commit()
+    except Exception as e:
+        print(f"Warning: Failed to log contact inquiry event: {e}")
+
+    return {
+        "status": "success",
+        "ticket_id": ticket_id,
+        "message": "Thank you for reaching out. Your inquiry has been received and prioritized by our engineering support desk."
+    }
+
+# -------------------------------------------------------------
+# Dynamic Sitemap Generation (Essential #3)
+# -------------------------------------------------------------
+@app.get("/sitemap.xml", response_class=Response)
+def get_dynamic_sitemap(db: Session = Depends(get_db)):
+    base_url = "https://pricespy.com"
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+
+    xml_lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+    ]
+
+    # Core Navigation Routes
+    static_routes = [
+        ("/", "1.0", "daily"),
+        ("/compare", "0.9", "hourly"),
+        ("/contact", "0.7", "monthly"),
+        ("/privacy", "0.5", "yearly"),
+        ("/terms", "0.5", "yearly")
+    ]
+
+    for path, priority, freq in static_routes:
+        xml_lines.append(f"  <url>")
+        xml_lines.append(f"    <loc>{base_url}{path}</loc>")
+        xml_lines.append(f"    <lastmod>{today}</lastmod>")
+        xml_lines.append(f"    <changefreq>{freq}</changefreq>")
+        xml_lines.append(f"    <priority>{priority}</priority>")
+        xml_lines.append(f"  </url>")
+
+    # Active Database Products
+    try:
+        products = db.query(Product).all()
+        for p in products:
+            xml_lines.append(f"  <url>")
+            xml_lines.append(f"    <loc>{base_url}/product/{p.id}</loc>")
+            lastmod = p.updated_at.strftime("%Y-%m-%d") if p.updated_at else today
+            xml_lines.append(f"    <lastmod>{lastmod}</lastmod>")
+            xml_lines.append(f"    <changefreq>hourly</changefreq>")
+            xml_lines.append(f"    <priority>0.8</priority>")
+            xml_lines.append(f"  </url>")
+    except Exception as e:
+        print(f"Warning: could not fetch products for sitemap: {e}")
+
+    xml_lines.append('</urlset>')
+    xml_content = "\n".join(xml_lines)
+
+    return Response(content=xml_content, media_type="application/xml")
+
+# -------------------------------------------------------------
+# 301 Permanent Redirects for Legacy / Alternative URLs (Essential #10)
+# -------------------------------------------------------------
+@app.get("/products", response_class=RedirectResponse, status_code=status.HTTP_301_MOVED_PERMANENTLY)
+def redirect_legacy_products():
+    return RedirectResponse(url="/compare", status_code=301)
+
+@app.get("/home", response_class=RedirectResponse, status_code=status.HTTP_301_MOVED_PERMANENTLY)
+def redirect_legacy_home():
+    return RedirectResponse(url="/", status_code=301)
+
+@app.get("/deals", response_class=RedirectResponse, status_code=status.HTTP_301_MOVED_PERMANENTLY)
+def redirect_legacy_deals():
+    return RedirectResponse(url="/compare", status_code=301)
+

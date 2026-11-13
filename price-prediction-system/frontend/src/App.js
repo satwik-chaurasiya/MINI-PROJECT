@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Palette, Sparkles, ArrowUpRight, Menu, X, Shield, 
-  FileText, User, HelpCircle
+  FileText, User, HelpCircle, Mail
 } from 'lucide-react';
 import LandingPage from './pages/LandingPage';
 import ProductDetail from './pages/ProductDetail';
@@ -12,11 +12,13 @@ import AuthPage from './pages/AuthPage';
 import ComparePage from './pages/ComparePage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
+import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 import ErrorBoundary from './components/ErrorBoundary';
 import Toast from './components/Toast';
 import OnboardingModal from './components/OnboardingModal';
+import PriceSpyLogo from './components/PriceSpyLogo';
 import { trackPageView } from './services/analytics';
 import api from './services/api';
 
@@ -43,7 +45,7 @@ function Navigation({ userEmail, onLogout, toggleTheme, onOpenOnboarding }) {
     const isActive = location.pathname === path;
     const baseClass = "px-3.5 py-1.5 rounded-lg text-xs font-mono transition-all duration-200 cursor-pointer ";
     return isActive 
-      ? baseClass + "text-white bg-sky-500/20 border border-sky-400/40 shadow-[0_0_15px_rgba(56,189,248,0.25)] font-semibold"
+      ? baseClass + "text-white bg-[#A31C1B]/25 border border-[#A31C1B]/50 shadow-[0_0_15px_rgba(163,28,27,0.35)] font-semibold"
       : baseClass + "text-gray-400 hover:text-white hover:bg-white/[0.05]";
   };
 
@@ -51,7 +53,7 @@ function Navigation({ userEmail, onLogout, toggleTheme, onOpenOnboarding }) {
     const isActive = location.pathname === path;
     const baseClass = "w-full text-left px-4 py-3 rounded-xl text-sm font-mono flex items-center justify-between transition-colors ";
     return isActive
-      ? baseClass + "text-white bg-sky-500/20 border border-sky-400/30 font-semibold"
+      ? baseClass + "text-white bg-[#A31C1B]/25 border border-[#A31C1B]/40 font-semibold"
       : baseClass + "text-gray-300 hover:text-white hover:bg-white/[0.06]";
   };
 
@@ -61,11 +63,11 @@ function Navigation({ userEmail, onLogout, toggleTheme, onOpenOnboarding }) {
       <div className="w-full max-w-7xl mx-auto mb-4 px-2 flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-gray-400 gap-2">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A31C1B] opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#A31C1B]"></span>
           </span>
           <span className="text-white font-medium">Prophet ML Active:</span>
-          <span className="text-emerald-400 font-semibold">Live Telemetry &bull; Zero False Matches</span>
+          <span className="text-rose-400 font-semibold">Live Telemetry &bull; Zero False Matches</span>
           <span className="hidden md:inline text-neutral-600">&bull;</span>
           <span className="hidden md:inline text-gray-400">Amazon &bull; Flipkart &bull; Walmart &bull; eBay</span>
         </div>
@@ -73,15 +75,15 @@ function Navigation({ userEmail, onLogout, toggleTheme, onOpenOnboarding }) {
         <div className="flex items-center gap-3">
           <button 
             onClick={onOpenOnboarding}
-            className="text-xs text-gray-400 hover:text-emerald-400 transition-colors flex items-center gap-1 cursor-pointer"
+            className="text-xs text-gray-400 hover:text-rose-400 transition-colors flex items-center gap-1 cursor-pointer"
             title="Start Interactive Tour"
           >
-            <HelpCircle className="w-3.5 h-3.5 text-emerald-400" />
+            <HelpCircle className="w-3.5 h-3.5 text-rose-400" />
             <span>Product Tour</span>
           </button>
           <span className="text-neutral-700 hidden sm:inline">|</span>
-          <span className="text-sky-400 flex items-center gap-1">
-            <Sparkles className="w-3 h-3" />
+          <span className="text-rose-300 flex items-center gap-1">
+            <Sparkles className="w-3 h-3 text-rose-400" />
             <span>AI Price Forecasting</span>
           </span>
         </div>
@@ -89,14 +91,12 @@ function Navigation({ userEmail, onLogout, toggleTheme, onOpenOnboarding }) {
 
       {/* Floating Glass Header */}
       <header className="max-w-7xl mx-auto glass-panel rounded-2xl px-4 sm:px-6 py-3 flex justify-between items-center transition-all duration-300 relative z-30">
-        <Link to="/" className="flex items-center space-x-2.5 group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-400/20 to-teal-400/10 border border-sky-400/30 flex items-center justify-center text-sm shadow-inner group-hover:border-sky-400/60 transition-colors">
-            📊
-          </div>
+        <Link to="/" className="flex items-center space-x-3 group">
+          <PriceSpyLogo size={36} animated={true} />
           <div className="flex flex-col">
             <span className="text-base sm:text-lg font-display font-bold text-white tracking-tight leading-tight flex items-center gap-1.5">
               PriceSpy
-              <span className="text-[10px] font-mono font-normal px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20 text-sky-400">
+              <span className="text-[10px] font-mono font-normal px-1.5 py-0.5 rounded bg-[#A31C1B]/15 border border-[#A31C1B]/30 text-rose-300">
                 PRO
               </span>
             </span>
@@ -110,6 +110,7 @@ function Navigation({ userEmail, onLogout, toggleTheme, onOpenOnboarding }) {
         <nav className="hidden md:flex items-center space-x-2 sm:space-x-3 text-sm">
           <Link to="/" className={getNavClass("/")}>Home</Link>
           <Link to="/compare" className={getNavClass("/compare")}>Compare</Link>
+          <Link to="/contact" className={getNavClass("/contact")}>Contact</Link>
           <Link to="/dashboard" className={getNavClass("/dashboard")}>Dashboard</Link>
           <Link to="/admin" className={getNavClass("/admin")}>Admin</Link>
           
@@ -169,6 +170,7 @@ function Navigation({ userEmail, onLogout, toggleTheme, onOpenOnboarding }) {
           <div className="flex flex-col space-y-2">
             <Link to="/" className={getMobileNavClass("/")}>Home</Link>
             <Link to="/compare" className={getMobileNavClass("/compare")}>Compare Deals</Link>
+            <Link to="/contact" className={getMobileNavClass("/contact")}>Contact Us</Link>
             <Link to="/dashboard" className={getMobileNavClass("/dashboard")}>Watchlist Dashboard</Link>
             <Link to="/admin" className={getMobileNavClass("/admin")}>Admin Console</Link>
             <Link to="/privacy" className={getMobileNavClass("/privacy")}>Privacy Policy</Link>
@@ -300,10 +302,10 @@ export default function App() {
       />
 
       <div className="relative min-h-screen bg-mainDark text-white p-3 sm:p-6 transition-colors duration-300 overflow-x-hidden flex flex-col justify-between">
-        {/* Subtle Ambient Background Grid & Radial Glows */}
-        <div className="fixed inset-0 bg-grid-pattern opacity-25 pointer-events-none z-0" />
-        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-sky-500/10 blur-[140px] pointer-events-none z-0 rounded-full" />
-        <div className="fixed bottom-0 right-0 w-[500px] h-[400px] bg-emerald-500/05 blur-[160px] pointer-events-none z-0 rounded-full" />
+        {/* Subtle Ambient Background Grid & Radial Glows with Crimson & Forest Green Atmosphere */}
+        <div className="fixed inset-0 bg-grid-pattern opacity-20 pointer-events-none z-0" />
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[720px] h-[360px] bg-[#A31C1B]/15 blur-[140px] pointer-events-none z-0 rounded-full" />
+        <div className="fixed bottom-0 right-0 w-[550px] h-[450px] bg-[#06110C] blur-[160px] pointer-events-none z-0 rounded-full" />
 
         <div className="relative z-10 flex flex-col min-h-screen">
           <Navigation 
@@ -333,6 +335,7 @@ export default function App() {
                 }} />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/terms" element={<TermsPage />} />
+                <Route path="/contact" element={<ContactPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </ErrorBoundary>
@@ -342,7 +345,8 @@ export default function App() {
           <footer className="max-w-7xl mx-auto w-full pt-12 sm:pt-16 pb-8 border-t border-white/[0.08] mt-16 space-y-6 text-xs font-mono text-gray-500">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 text-gray-400">
               <div className="space-y-2">
-                <div className="text-white font-bold font-display text-sm flex items-center gap-1.5">
+                <div className="text-white font-bold font-display text-sm flex items-center gap-2">
+                  <PriceSpyLogo size={22} animated={false} />
                   <span>PriceSpy</span>
                   <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
                     V3.8
@@ -375,8 +379,12 @@ export default function App() {
 
               <div className="space-y-1.5 flex flex-col">
                 <span className="text-white font-semibold uppercase text-[11px] tracking-wider mb-1">
-                  Compliance &amp; Legal
+                  Compliance &amp; Support
                 </span>
+                <Link to="/contact" className="hover:text-rose-400 transition-colors flex items-center gap-1">
+                  <Mail className="w-3 h-3 text-rose-400" />
+                  <span>Contact Support</span>
+                </Link>
                 <Link to="/privacy" className="hover:text-emerald-400 transition-colors flex items-center gap-1">
                   <Shield className="w-3 h-3 text-emerald-400" />
                   <span>Privacy Policy (GDPR)</span>

@@ -1,9 +1,19 @@
 import React from 'react';
 import { ShieldCheck, Lock, Eye, FileText } from 'lucide-react';
+import usePageSEO from '../hooks/usePageSEO';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 export default function PrivacyPage() {
+  usePageSEO({
+    title: 'Privacy Policy & Data Rights | PriceSpy Pro',
+    description: 'Learn how PriceSpy collects, protects, isolates, and safeguards your e-commerce search history and user accounts under GDPR & CCPA.',
+    canonicalUrl: 'https://pricespy.com/privacy',
+  });
+
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-200">
+      <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Privacy Policy' }]} />
+
       <div className="space-y-2 border-b border-white/10 pb-6">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
           <ShieldCheck className="w-3.5 h-3.5" />

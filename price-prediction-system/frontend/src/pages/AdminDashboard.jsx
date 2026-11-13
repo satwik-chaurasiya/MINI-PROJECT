@@ -7,8 +7,16 @@ import {
 import api from '../services/api';
 import EmptyState from '../components/EmptyState';
 import Toast from '../components/Toast';
+import usePageSEO from '../hooks/usePageSEO';
 
 export default function AdminDashboard() {
+  usePageSEO({
+    title: 'Telemetry & Engine Administration | PriceSpy Pro',
+    description: 'System telemetry, database automated backups, ML model latency, and error auditing logs.',
+    canonicalUrl: 'https://pricespy.com/admin',
+    noIndex: true,
+  });
+
   const [metrics, setMetrics] = useState(null);
   const [backups, setBackups] = useState([]);
   const [analytics, setAnalytics] = useState(null);
@@ -111,8 +119,8 @@ export default function AdminDashboard() {
       {/* Header and Refresh Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono mb-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#A31C1B]/15 border border-[#A31C1B]/30 text-rose-300 text-xs font-mono mb-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#A31C1B] animate-pulse" />
             <span>Admin Control Plane &bull; Level 4 Access</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold font-display tracking-tight text-white">
@@ -207,7 +215,7 @@ export default function AdminDashboard() {
           onClick={() => setActiveTab('system')}
           className={`px-4 py-2 rounded-xl text-xs font-mono font-medium transition-all cursor-pointer whitespace-nowrap ${
             activeTab === 'system'
-              ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30 font-semibold'
+              ? 'bg-[#A31C1B]/25 text-white border border-[#A31C1B]/50 font-semibold shadow-[0_0_15px_rgba(163,28,27,0.3)]'
               : 'text-gray-400 hover:text-white hover:bg-white/[0.04]'
           }`}
         >

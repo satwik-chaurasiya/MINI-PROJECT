@@ -1,3 +1,22 @@
 # https://www.robotstxt.org/robotstxt.html
+# PriceSpy Pro Crawler Directive
+
 User-agent: *
-Disallow:
+Allow: /
+Allow: /compare
+Allow: /product/
+Allow: /privacy
+Allow: /terms
+Allow: /contact
+
+# Private User & Administrative Boundaries
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /auth
+Disallow: /api/
+
+# Crawler Rate Delay
+Crawl-delay: 2
+
+# XML Sitemap Index
+Sitemap: https://pricespy.com/sitemap.xml
