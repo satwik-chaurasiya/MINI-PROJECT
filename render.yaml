@@ -4,7 +4,7 @@ services:
   # -------------------------------------------------------------
   - type: web
     name: pricespy-backend
-    env: python
+    runtime: python
     region: oregon
     plan: free
     rootDir: price-prediction-system
@@ -21,9 +21,7 @@ services:
   # -------------------------------------------------------------
   - type: web
     name: pricespy-frontend
-    env: static
-    region: oregon
-    plan: free
+    runtime: static
     rootDir: price-prediction-system/frontend
     buildCommand: npm install && npm run build
     staticPublishPath: build
@@ -33,7 +31,4 @@ services:
         destination: /index.html
     envVars:
       - key: REACT_APP_API_URL
-        fromService:
-          type: web
-          name: pricespy-backend
-          property: url
+        value: https://pricespy-backend.onrender.com
