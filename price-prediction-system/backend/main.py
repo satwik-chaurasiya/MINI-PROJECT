@@ -794,22 +794,30 @@ def get_user_profile(current_user: User = Depends(get_current_user)):
         "created_at": current_user.created_at.isoformat() if current_user.created_at else None
     }
 
-# Feature 2: Password reset flow with email link
+# Feature 2: Password reset flow with email link & simulation
 @app.post("/api/auth/forgot-password")
-def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
+def forgot_password(req: ForgotPasswordRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == req.email).first()
     if not user:
         # Prevent email enumeration: return success even if user not found
-        return {"status": "success", "message": "If this email is registered, a password reset link has been sent."}
+        return {"status": "success", "message": "If this email is registered, a password reset link has been dispatched."}
     
     reset_token = secrets.token_urlsafe(32)
     user.reset_token = reset_token
     user.reset_token_expiry = datetime.utcnow() + timedelta(minutes=15)
     db.commit()
 
+    # Attempt SMTP email dispatch if credentials are provided in environment
+    try:
+        from app.services.email_service import send_password_reset_email, is_smtp_configured
+        if is_smtp_configured():
+            background_tasks.add_task(send_password_reset_email, user.email, reset_token)
+    except Exception as e:
+        print(f"SMTP Notification Warning: {e}")
+
     return {
         "status": "success",
-        "message": "Password reset link sent to your email (valid for 15 minutes).",
+        "message": "Password reset token generated! You can enter your new password immediately.",
         "reset_token_dev": reset_token
     }
 
@@ -817,7 +825,7 @@ def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
 def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.reset_token == req.reset_token).first()
     if not user or not user.reset_token_expiry or user.reset_token_expiry < datetime.utcnow():
-        raise HTTPException(status_code=400, detail="Invalid or expired password reset link.")
+        raise HTTPException(status_code=400, detail="Invalid or expired password reset link. Please request a new one.")
 
     user.hashed_password = get_password_hash(req.new_password)
     user.reset_token = None
@@ -826,20 +834,41 @@ def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
 
     return {"status": "success", "message": "Password has been successfully updated. You can now log in."}
 
-# Feature 3: Email verification on signup
+# Feature 3: Email verification on signup & 1-click dashboard verification
 @app.post("/api/auth/verify-email")
-def verify_email(req: VerifyEmailRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.verification_token == req.token).first()
+def verify_email(
+    req: VerifyEmailRequest, 
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user)
+):
+    user = None
+    if req.token and req.token not in ["demo-token", "one-click"]:
+        user = db.query(User).filter(User.verification_token == req.token).first()
+    
+    # If one-click in dashboard or fallback for active authenticated user
+    if not user and current_user and current_user.email != "guest@pricespy.io":
+        user = current_user
+
     if not user:
         raise HTTPException(status_code=400, detail="Invalid or expired verification token.")
     
     user.is_verified = True
     user.verification_token = None
     db.commit()
+    db.refresh(user)
     return {"status": "success", "message": "Email address verified successfully!"}
 
+@app.post("/api/auth/verify-me")
+def verify_current_user(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.email == "guest@pricespy.io":
+        raise HTTPException(status_code=400, detail="Cannot verify default guest account.")
+    current_user.is_verified = True
+    current_user.verification_token = None
+    db.commit()
+    return {"status": "success", "message": "Email address verified successfully in database!"}
+
 @app.post("/api/auth/resend-verification")
-def resend_verification(req: ResendVerificationRequest, db: Session = Depends(get_db)):
+def resend_verification(req: ResendVerificationRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == req.email).first()
     if not user:
         return {"status": "success", "message": "Verification link has been sent."}
@@ -847,6 +876,14 @@ def resend_verification(req: ResendVerificationRequest, db: Session = Depends(ge
     token = secrets.token_urlsafe(32)
     user.verification_token = token
     db.commit()
+
+    try:
+        from app.services.email_service import send_verification_email, is_smtp_configured
+        if is_smtp_configured():
+            background_tasks.add_task(send_verification_email, user.email, token)
+    except Exception as e:
+        print(f"SMTP Verification Warning: {e}")
+
     return {"status": "success", "message": "New verification link generated.", "token_dev": token}
 
 # Feature 19: Onboarding flow completion

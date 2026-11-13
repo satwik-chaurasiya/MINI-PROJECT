@@ -83,15 +83,20 @@ export default function Dashboard() {
 
   const handleOneClickVerify = async () => {
     try {
-      await api.post('/api/auth/verify-email', { token: "demo-token" });
+      await api.post('/api/auth/verify-me');
       setCurrentUser(prev => ({ ...prev, is_verified: true }));
-      setVerifyNotice('Email verified successfully!');
+      setVerifyNotice('Email verified successfully in database!');
       setTimeout(() => setVerifyNotice(null), 3000);
     } catch (err) {
-      // Direct update for demo / production
-      setCurrentUser(prev => ({ ...prev, is_verified: true }));
-      setVerifyNotice('Email marked as verified!');
-      setTimeout(() => setVerifyNotice(null), 3000);
+      try {
+        await api.post('/api/auth/verify-email', { token: "demo-token" });
+        setCurrentUser(prev => ({ ...prev, is_verified: true }));
+        setVerifyNotice('Email verified successfully!');
+        setTimeout(() => setVerifyNotice(null), 3000);
+      } catch (e) {
+        setVerifyNotice('Could not verify email.');
+        setTimeout(() => setVerifyNotice(null), 3000);
+      }
     }
   };
 

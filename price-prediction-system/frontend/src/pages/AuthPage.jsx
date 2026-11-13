@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, Mail, CheckCircle2, AlertCircle, ArrowRight, Loader2, KeyRound, ShieldCheck } from 'lucide-react';
 import api from '../services/api';
 import { trackEvent } from '../services/analytics';
@@ -25,6 +25,17 @@ export default function AuthPage({ onLoginSuccess }) {
   const [successMsg, setSuccessMsg] = useState('');
   const [devToken, setDevToken] = useState('');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const urlMode = searchParams.get('mode');
+    const urlToken = searchParams.get('token');
+    if (urlMode) setMode(urlMode);
+    if (urlToken) {
+      setResetToken(urlToken);
+      setDevToken(urlToken);
+    }
+  }, [searchParams]);
 
   const validateEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
@@ -90,6 +101,10 @@ export default function AuthPage({ onLoginSuccess }) {
       if (res.data.reset_token_dev) {
         setDevToken(res.data.reset_token_dev);
         setResetToken(res.data.reset_token_dev);
+        setTimeout(() => {
+          setMode('reset');
+          setSuccessMsg('Reset token ready! Please type your new password below.');
+        }, 800);
       }
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to request password reset.');
