@@ -123,7 +123,16 @@ async def lifespan(app: FastAPI):
     # Shutdown
     task.cancel()
 
-app = FastAPI(title="PriceSpy AI", version="2.0.0", lifespan=lifespan)
+ENABLE_DOCS = os.getenv("ENABLE_API_DOCS", "false").lower() in ("true", "1", "yes")
+
+app = FastAPI(
+    title="PriceSpy AI",
+    version="2.0.0",
+    lifespan=lifespan,
+    docs_url="/docs" if ENABLE_DOCS else None,
+    redoc_url="/redoc" if ENABLE_DOCS else None,
+    openapi_url="/openapi.json" if ENABLE_DOCS else None,
+)
 
 # Middleware
 app.add_middleware(InMemoryRateLimiter)
@@ -143,13 +152,15 @@ async def error_handling_middleware(request: Request, call_next):
         return response
     except Exception as exc:
         import traceback
+        import re
         tb = traceback.format_exc()
+        tb_safe = re.sub(r'(\bpassword\b|\btoken\b|\bsecret\b|\botp\b)\s*[:=]\s*["\']?[^"\'\s,]+', r'\1: "***REDACTED***"', tb, flags=re.IGNORECASE)
         try:
             with SessionLocal() as db:
                 log_entry = AuditErrorLog(
                     source="backend",
                     error_message=str(exc),
-                    stack_trace=tb,
+                    stack_trace=tb_safe,
                     path=request.url.path,
                     timestamp=datetime.utcnow()
                 )
@@ -1394,7 +1405,7 @@ def create_backup(db: Session = Depends(get_db)):
         "users": [
             {
                 "id": u.id,
-                "email": u.email,
+                "email_masked": f"{u.email[:2]}***@{u.email.split('@')[-1]}" if u.email and "@" in u.email else "user***@domain.com",
                 "is_verified": u.is_verified,
                 "has_completed_onboarding": u.has_completed_onboarding,
                 "created_at": u.created_at.isoformat() if u.created_at else None

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Activity, Server, RefreshCw, CheckCircle2, Database,
   Download, RotateCcw, BarChart3, AlertTriangle, 
-  FileJson, Check
+  FileJson, Check, ShieldAlert
 } from 'lucide-react';
 import api from '../services/api';
 import EmptyState from '../components/EmptyState';
@@ -17,6 +17,9 @@ export default function AdminDashboard() {
     noIndex: true,
   });
 
+  const userEmail = localStorage.getItem('pricespy_user') || '';
+  const isAdmin = userEmail.toLowerCase().includes('admin') || userEmail.endsWith('@pricespy.io');
+
   const [metrics, setMetrics] = useState(null);
   const [backups, setBackups] = useState([]);
   const [analytics, setAnalytics] = useState(null);
@@ -28,6 +31,10 @@ export default function AdminDashboard() {
   const [toast, setToast] = useState(null);
 
   const fetchAllAdminData = async () => {
+    if (!isAdmin) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const [metricsRes, backupsRes, analyticsRes, errorsRes] = await Promise.all([
@@ -50,6 +57,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchAllAdminData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCreateBackup = async () => {
@@ -95,6 +103,26 @@ export default function AdminDashboard() {
       setRestoringFile(null);
     }
   };
+
+  if (!isAdmin) {
+    return (
+      <div className="max-w-xl mx-auto my-12 p-8 glass-panel rounded-3xl text-center space-y-4 border border-rose-500/20">
+        <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-2xl w-fit mx-auto text-rose-400">
+          <ShieldAlert className="w-8 h-8" />
+        </div>
+        <h2 className="text-xl font-bold font-display text-white">Administrator Access Restricted</h2>
+        <p className="text-xs text-gray-400 leading-relaxed max-w-md mx-auto">
+          System telemetry, engine diagnostics, and database management are restricted to authorized administrators. All user data and backend operations are protected under role-based access control.
+        </p>
+        <button
+          onClick={() => window.location.href = '/'}
+          className="btn-primary py-2.5 px-6 rounded-xl text-xs font-bold text-neutral-950 inline-flex items-center gap-2 cursor-pointer shadow-lg"
+        >
+          <span>Return to Dashboard</span>
+        </button>
+      </div>
+    );
+  }
 
   if (loading && !metrics) {
     return (

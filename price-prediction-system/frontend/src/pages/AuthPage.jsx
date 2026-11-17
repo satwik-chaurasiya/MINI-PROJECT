@@ -44,6 +44,7 @@ export default function AuthPage({ onLoginSuccess }) {
   // 5-Minute OTP Timer States (300 seconds)
   const [timeLeft, setTimeLeft] = useState(300);
   const [timerActive, setTimerActive] = useState(false);
+  const [showOtpCodes, setShowOtpCodes] = useState(true);
 
   // UI helpers
   const [showPassword, setShowPassword] = useState(false);
@@ -389,15 +390,26 @@ export default function AuthPage({ onLoginSuccess }) {
                 <ShieldCheck className="w-4 h-4 text-rose-400" />
                 <span>Security Dispatch Terminal (Hashed &amp; Salted in DB)</span>
               </div>
-              <div className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold border transition ${
-                timeLeft > 60
-                  ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-400'
-                  : timeLeft > 0
-                  ? 'bg-amber-950/80 border-amber-500/50 text-amber-400 animate-pulse'
-                  : 'bg-rose-950 border-rose-500 text-rose-300'
-              }`}>
-                <Clock className="w-3.5 h-3.5" />
-                <span>{timeLeft > 0 ? `Expires: ${formatTimer(timeLeft)}` : 'OTP Expired (5m)'}</span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowOtpCodes(!showOtpCodes)}
+                  className="text-gray-400 hover:text-white flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10 transition cursor-pointer"
+                  title={showOtpCodes ? "Mask OTP codes on screen" : "Reveal OTP codes"}
+                >
+                  {showOtpCodes ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  <span>{showOtpCodes ? 'Mask' : 'Reveal'}</span>
+                </button>
+                <div className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold border transition ${
+                  timeLeft > 60
+                    ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-400'
+                    : timeLeft > 0
+                    ? 'bg-amber-950/80 border-amber-500/50 text-amber-400 animate-pulse'
+                    : 'bg-rose-950 border-rose-500 text-rose-300'
+                }`}>
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>{timeLeft > 0 ? `Expires: ${formatTimer(timeLeft)}` : 'OTP Expired (5m)'}</span>
+                </div>
               </div>
             </div>
 
@@ -434,7 +446,7 @@ export default function AuthPage({ onLoginSuccess }) {
                         <span>Email OTP (Valid 5 mins)</span>
                       </div>
                       <div className="font-mono text-xl sm:text-2xl font-bold tracking-widest text-sky-300">
-                        {otpDispatch.email_otp}
+                        {showOtpCodes ? otpDispatch.email_otp : "••••••"}
                       </div>
                     </div>
                   )}
@@ -446,7 +458,7 @@ export default function AuthPage({ onLoginSuccess }) {
                         <span>Phone OTP (Valid 5 mins)</span>
                       </div>
                       <div className="font-mono text-xl sm:text-2xl font-bold tracking-widest text-emerald-300">
-                        {otpDispatch.phone_otp}
+                        {showOtpCodes ? otpDispatch.phone_otp : "••••••"}
                       </div>
                     </div>
                   )}
@@ -458,7 +470,7 @@ export default function AuthPage({ onLoginSuccess }) {
                         <span>Password Reset 6-Digit OTP (Valid 5 mins)</span>
                       </div>
                       <div className="font-mono text-2xl sm:text-3xl font-bold tracking-widest text-rose-300">
-                        {otpDispatch.reset_otp}
+                        {showOtpCodes ? otpDispatch.reset_otp : "••••••"}
                       </div>
                     </div>
                   )}

@@ -15,12 +15,8 @@ You can test and use the complete application live online without installing any
   👉 **[https://pricespy-frontend.onrender.com](https://pricespy-frontend.onrender.com)**  
   *(Note: Unauthenticated visitors land directly on the secure Login/Registration Gateway. Create an account or sign in to access the full platform!)*
 
-* ⚡ **Live Interactive REST API (Swagger UI):**  
-  👉 **[https://pricespy-backend.onrender.com/docs](https://pricespy-backend.onrender.com/docs)**  
-  *(Execute live API queries, run test predictions, test OTP verification, and inspect schemas directly in your browser).*
-
-* 📖 **Alternative API Documentation (ReDoc):**  
-  👉 **[https://pricespy-backend.onrender.com/redoc](https://pricespy-backend.onrender.com/redoc)**
+* 🔒 **Secure Backend Architecture:**  
+  Protected behind HTTPS with strict JWT bearer authentication, rate limiting, and zero public API exposure.
 
 * 📦 **GitHub Source Repository:**  
   👉 **[https://github.com/satwik-chaurasiya/MINI-PROJECT](https://github.com/satwik-chaurasiya/MINI-PROJECT)**

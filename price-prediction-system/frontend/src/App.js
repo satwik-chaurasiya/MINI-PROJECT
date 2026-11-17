@@ -113,7 +113,9 @@ function Navigation({ userEmail, onLogout, toggleTheme, onOpenOnboarding }) {
               <Link to="/" className={getNavClass("/")}>Forecaster</Link>
               <Link to="/compare" className={getNavClass("/compare")}>Compare Matrix</Link>
               <Link to="/dashboard" className={getNavClass("/dashboard")}>Watchlist</Link>
-              <Link to="/admin" className={getNavClass("/admin")}>Admin</Link>
+              {userEmail && (userEmail.toLowerCase().includes('admin') || userEmail.endsWith('@pricespy.io')) && (
+                <Link to="/admin" className={getNavClass("/admin")}>Admin</Link>
+              )}
             </>
           ) : (
             <div className="flex items-center gap-2">
@@ -184,7 +186,9 @@ function Navigation({ userEmail, onLogout, toggleTheme, onOpenOnboarding }) {
             <Link to="/compare" className={getMobileNavClass("/compare")}>Compare Deals</Link>
             <Link to="/contact" className={getMobileNavClass("/contact")}>Contact Us</Link>
             <Link to="/dashboard" className={getMobileNavClass("/dashboard")}>Watchlist Dashboard</Link>
-            <Link to="/admin" className={getMobileNavClass("/admin")}>Admin Console</Link>
+            {userEmail && (userEmail.toLowerCase().includes('admin') || userEmail.endsWith('@pricespy.io')) && (
+              <Link to="/admin" className={getMobileNavClass("/admin")}>Admin Console</Link>
+            )}
             <Link to="/privacy" className={getMobileNavClass("/privacy")}>Privacy Policy</Link>
             <Link to="/terms" className={getMobileNavClass("/terms")}>Terms of Service</Link>
           </div>
@@ -409,7 +413,7 @@ export default function App() {
                 <span className="text-white font-semibold uppercase text-[11px] tracking-wider mb-1">
                   Architecture &amp; Security
                 </span>
-                <Link to="/admin" className="hover:text-sky-400 transition-colors">Telemetry &amp; Backups</Link>
+                <span className="text-gray-400">Telemetry &amp; Backups (Protected)</span>
                 <span className="text-gray-400">Row-Level Security (RLS)</span>
                 <span className="text-gray-400">Rate Limiting Protected</span>
                 <span className="text-gray-400">Secure Backend Secrets</span>

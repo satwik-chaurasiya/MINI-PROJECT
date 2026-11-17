@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Package, Bell, DollarSign, Database, Trash2, 
-  ExternalLink, RefreshCw, CheckCircle2, UserX, AlertCircle 
+  ExternalLink, RefreshCw, CheckCircle2, UserX, AlertCircle,
+  Eye, EyeOff, Shield
 } from 'lucide-react';
 import api from '../services/api';
 import { trackEvent } from '../services/analytics';
@@ -28,10 +29,18 @@ export default function Dashboard() {
   const [watchlist, setWatchlist] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [verifyNotice, setVerifyNotice] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [showFullPhone, setShowFullPhone] = useState(false);
   const navigate = useNavigate();
+
+  const maskPhone = (phone) => {
+    if (!phone) return '';
+    const clean = phone.trim();
+    if (clean.length < 8) return clean;
+    const prefix = clean.slice(0, 3);
+    const suffix = clean.slice(-3);
+    return `${prefix} •••••• ${suffix}`;
+  };
 
   const fetchDashboardData = () => {
     setLoading(true);
@@ -67,39 +76,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleVerifyEmail = async () => {
-    setIsVerifying(true);
-    try {
-      // Simulate/Trigger email verification
-      await api.post('/api/auth/resend-verification', { email: currentUser.email });
-      setVerifyNotice('Verification link refreshed! Check your inbox.');
-      setTimeout(() => setVerifyNotice(null), 4000);
-    } catch (err) {
-      setVerifyNotice('Could not send verification email.');
-    } finally {
-      setIsVerifying(false);
-    }
-  };
-
-  const handleOneClickVerify = async () => {
-    try {
-      await api.post('/api/auth/verify-me');
-      setCurrentUser(prev => ({ ...prev, is_verified: true }));
-      setVerifyNotice('Email verified successfully in database!');
-      setTimeout(() => setVerifyNotice(null), 3000);
-    } catch (err) {
-      try {
-        await api.post('/api/auth/verify-email', { token: "demo-token" });
-        setCurrentUser(prev => ({ ...prev, is_verified: true }));
-        setVerifyNotice('Email verified successfully!');
-        setTimeout(() => setVerifyNotice(null), 3000);
-      } catch (e) {
-        setVerifyNotice('Could not verify email.');
-        setTimeout(() => setVerifyNotice(null), 3000);
-      }
-    }
-  };
-
   const getPlatformBadgeStyle = (platform) => {
     switch (platform?.toLowerCase()) {
       case 'amazon': return 'bg-amber-500/10 text-amber-400 border-amber-500/30';
@@ -132,10 +108,18 @@ export default function Dashboard() {
               <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 font-mono">
                 {currentUser.country && <span>📍 {currentUser.state ? `${currentUser.state}, ` : ''}{currentUser.country}</span>}
                 {currentUser.phone_number && (
-                  <>
-                    <span>&bull;</span>
-                    <span>📱 {currentUser.phone_number}</span>
-                  </>
+                  <span className="flex items-center gap-1.5 bg-black/30 border border-white/5 px-2 py-0.5 rounded-lg">
+                    <span>📱</span>
+                    <span>{showFullPhone ? currentUser.phone_number : maskPhone(currentUser.phone_number)}</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowFullPhone(!showFullPhone)}
+                      className="text-gray-400 hover:text-white transition cursor-pointer p-0.5"
+                      title={showFullPhone ? "Mask phone number" : "Reveal full phone number"}
+                    >
+                      {showFullPhone ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                    </button>
+                  </span>
                 )}
                 <span>&bull;</span>
                 <span className={currentUser.is_phone_verified ? "text-emerald-400" : "text-amber-400"}>
@@ -174,31 +158,18 @@ export default function Dashboard() {
           <div className="flex items-center gap-2.5 text-amber-300">
             <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
             <span>
-              Your email address is unverified. Please verify your email to ensure instant alert delivery.
+              Your email address is unverified. Please enter your 6-digit OTP code to verify your account.
             </span>
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={handleOneClickVerify}
-              className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-semibold transition cursor-pointer"
+              onClick={() => navigate(`/auth?mode=verify_otp&email=${encodeURIComponent(currentUser.email)}`)}
+              className="px-3.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-semibold transition cursor-pointer flex items-center gap-1.5 shadow"
             >
-              Verify Now
-            </button>
-            <button
-              onClick={handleVerifyEmail}
-              disabled={isVerifying}
-              className="text-gray-400 hover:text-white underline cursor-pointer"
-            >
-              Resend Link
+              <Shield className="w-3.5 h-3.5" />
+              <span>Verify with 6-Digit OTP</span>
             </button>
           </div>
-        </div>
-      )}
-
-      {verifyNotice && (
-        <div className="p-3 bg-emerald-950/60 border border-emerald-500/30 rounded-xl text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>{verifyNotice}</span>
         </div>
       )}
 
