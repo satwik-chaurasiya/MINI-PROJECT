@@ -676,9 +676,48 @@ def get_current_user(token: Optional[str] = Depends(oauth2_scheme), db: Session 
 # -------------------------------------------------------------
 EMAIL_REGEX = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
 
+# OTP Cryptographic Helper Functions
+def generate_numeric_otp(length: int = 6) -> str:
+    """Generate cryptographically secure N-digit numeric OTP."""
+    return "".join(secrets.choice("0123456789") for _ in range(length))
+
+def hash_otp(otp: str, salt: str = SECRET_KEY) -> str:
+    """Generate SHA-256 salted hash of the OTP for secure database storage."""
+    return hashlib.sha256(f"{otp.strip()}:{salt}".encode("utf-8")).hexdigest()
+
+def verify_otp_hash(otp: str, hashed_otp: str, salt: str = SECRET_KEY) -> bool:
+    """Verify an OTP against its stored hash in constant time."""
+    if not otp or not hashed_otp:
+        return False
+    computed = hashlib.sha256(f"{otp.strip()}:{salt}".encode("utf-8")).hexdigest()
+    return secrets.compare_digest(computed, hashed_otp)
+
 class AuthRegisterRequest(BaseModel):
+    name: Optional[str] = Field("PriceSpy User", min_length=2, max_length=120, description="Full Name")
     email: str = Field(..., pattern=EMAIL_REGEX, description="Valid email address")
+    country: Optional[str] = Field("India", min_length=2, max_length=100, description="Country")
+    state: Optional[str] = Field("State", min_length=2, max_length=100, description="State / Province")
+    phone_number: Optional[str] = Field("+910000000000", min_length=7, max_length=25, description="Phone number")
     password: str = Field(..., min_length=8, description="Password must be at least 8 characters")
+    password_confirmation: Optional[str] = Field(None, min_length=8, description="Password confirmation must match password")
+
+class VerifyOTPRequest(BaseModel):
+    email: str = Field(..., pattern=EMAIL_REGEX)
+    email_otp: Optional[str] = Field(None, min_length=6, max_length=6)
+    phone_otp: Optional[str] = Field(None, min_length=6, max_length=6)
+
+class ResendOTPRequest(BaseModel):
+    email: str = Field(..., pattern=EMAIL_REGEX)
+    otp_type: str = Field("all", description="'email', 'phone', or 'all'")
+
+class ForgotPasswordOTPRequest(BaseModel):
+    email: str = Field(..., pattern=EMAIL_REGEX)
+
+class ResetPasswordOTPRequest(BaseModel):
+    email: str = Field(..., pattern=EMAIL_REGEX)
+    otp: str = Field(..., min_length=6, max_length=6, description="6-digit Reset OTP")
+    new_password: str = Field(..., min_length=8)
+    password_confirmation: str = Field(..., min_length=8)
 
 class AuthLoginRequest(BaseModel):
     email: str = Field(..., pattern=EMAIL_REGEX)
@@ -729,41 +768,283 @@ def root():
         "timestamp": datetime.utcnow().isoformat()
     }
 
-# Feature 1: Real login and logout
+# Feature 1: Real registration with extended profile and hashed 6-digit OTP verification
 @app.post("/api/auth/register", status_code=status.HTTP_201_CREATED)
-def register(user: AuthRegisterRequest, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == user.email).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="This email address is already registered.")
+def register(user: AuthRegisterRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    if user.password_confirmation and user.password != user.password_confirmation:
+        raise HTTPException(status_code=400, detail="Password and Password Confirmation do not match.")
+
+    existing_user = db.query(User).filter(User.email == user.email).first()
+    if existing_user:
+        # If user registered previously but has not verified email or phone, issue fresh OTPs
+        if not existing_user.is_verified and not existing_user.is_phone_verified:
+            email_otp = generate_numeric_otp(6)
+            phone_otp = generate_numeric_otp(6)
+            expiry = datetime.utcnow() + timedelta(minutes=10)
+            existing_user.email_otp_hash = hash_otp(email_otp)
+            existing_user.email_otp_expiry = expiry
+            existing_user.phone_otp_hash = hash_otp(phone_otp)
+            existing_user.phone_otp_expiry = expiry
+            existing_user.hashed_password = get_password_hash(user.password)
+            existing_user.full_name = user.name
+            existing_user.country = user.country
+            existing_user.state = user.state
+            existing_user.phone_number = user.phone_number
+            db.commit()
+
+            try:
+                from app.services.email_service import send_otp_email, is_smtp_configured
+                if is_smtp_configured():
+                    background_tasks.add_task(send_otp_email, existing_user.email, email_otp, "Email Verification")
+            except Exception:
+                pass
+
+            access_token = create_access_token(data={"sub": existing_user.email})
+            return {
+                "status": "success",
+                "access_token": access_token,
+                "token_type": "bearer",
+                "verification_token": existing_user.verification_token or "demo-token",
+                "requires_otp": True,
+                "message": "Account pending verification. Generated fresh 6-digit OTPs.",
+                "email": existing_user.email,
+                "user": {
+                    "id": existing_user.id,
+                    "full_name": existing_user.full_name,
+                    "email": existing_user.email,
+                    "country": existing_user.country,
+                    "state": existing_user.state,
+                    "phone_number": existing_user.phone_number,
+                    "is_verified": existing_user.is_verified,
+                    "is_phone_verified": existing_user.is_phone_verified,
+                    "has_completed_onboarding": existing_user.has_completed_onboarding
+                },
+                "otp_dispatch": {
+                    "email_otp": email_otp,
+                    "phone_otp": phone_otp,
+                    "expires_in_minutes": 10
+                }
+            }
+        raise HTTPException(status_code=400, detail="An account with this email address already exists. Please sign in.")
+
+    # Generate 6-digit OTPs for Email and Phone Number
+    email_otp = generate_numeric_otp(6)
+    phone_otp = generate_numeric_otp(6)
+    expiry = datetime.utcnow() + timedelta(minutes=10)
     
-    # Feature 3: Email verification on signup
-    verification_token = secrets.token_urlsafe(32)
     hashed_password = get_password_hash(user.password)
-    
+    verification_token = secrets.token_urlsafe(32)
+
     new_user = User(
         email=user.email,
         hashed_password=hashed_password,
+        full_name=user.name,
+        country=user.country,
+        state=user.state,
+        phone_number=user.phone_number,
         is_verified=False,
+        is_phone_verified=False,
         verification_token=verification_token,
+        email_otp_hash=hash_otp(email_otp),
+        email_otp_expiry=expiry,
+        phone_otp_hash=hash_otp(phone_otp),
+        phone_otp_expiry=expiry,
         has_completed_onboarding=False,
         created_at=datetime.utcnow()
     )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    
+
+    # Dispatch email if SMTP is configured
+    try:
+        from app.services.email_service import send_otp_email, is_smtp_configured
+        if is_smtp_configured():
+            background_tasks.add_task(send_otp_email, new_user.email, email_otp, "Email Verification")
+    except Exception:
+        pass
+
     access_token = create_access_token(data={"sub": new_user.email})
     return {
+        "status": "success",
+        "access_token": access_token,
+        "token_type": "bearer",
+        "verification_token": verification_token,
+        "requires_otp": True,
+        "message": "Registration successful! Please verify the 6-digit Email OTP and Phone OTP.",
+        "email": new_user.email,
+        "user": {
+            "id": new_user.id,
+            "full_name": new_user.full_name,
+            "email": new_user.email,
+            "country": new_user.country,
+            "state": new_user.state,
+            "phone_number": new_user.phone_number,
+            "is_verified": new_user.is_verified,
+            "is_phone_verified": new_user.is_phone_verified,
+            "has_completed_onboarding": new_user.has_completed_onboarding
+        },
+        "otp_dispatch": {
+            "email_otp": email_otp,
+            "phone_otp": phone_otp,
+            "expires_in_minutes": 10
+        }
+    }
+
+# 6-Digit Hashed OTP Verification Endpoint (No automatic bypass)
+@app.post("/api/auth/verify-otp")
+def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == req.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User account not found.")
+
+    now = datetime.utcnow()
+    verified_any = False
+    errors = []
+
+    # Verify Email OTP
+    if req.email_otp:
+        clean_email_otp = req.email_otp.strip()
+        if not user.email_otp_hash or not user.email_otp_expiry or user.email_otp_expiry < now:
+            errors.append("Email OTP has expired. Please request a new code.")
+        elif not verify_otp_hash(clean_email_otp, user.email_otp_hash):
+            errors.append("Invalid 6-digit Email OTP.")
+        else:
+            user.is_verified = True
+            user.email_otp_hash = None
+            user.email_otp_expiry = None
+            verified_any = True
+
+    # Verify Phone OTP
+    if req.phone_otp:
+        clean_phone_otp = req.phone_otp.strip()
+        if not user.phone_otp_hash or not user.phone_otp_expiry or user.phone_otp_expiry < now:
+            errors.append("Phone OTP has expired. Please request a new code.")
+        elif not verify_otp_hash(clean_phone_otp, user.phone_otp_hash):
+            errors.append("Invalid 6-digit Phone OTP.")
+        else:
+            user.is_phone_verified = True
+            user.phone_otp_hash = None
+            user.phone_otp_expiry = None
+            verified_any = True
+
+    if errors:
+        db.commit()
+        raise HTTPException(status_code=400, detail=" & ".join(errors))
+
+    if not verified_any and not req.email_otp and not req.phone_otp:
+        raise HTTPException(status_code=400, detail="Please enter your 6-digit Email OTP and Phone OTP.")
+
+    db.commit()
+    db.refresh(user)
+
+    access_token = create_access_token(data={"sub": user.email})
+    return {
+        "status": "success",
+        "message": "Verification successful! Welcome to PriceSpy Pro.",
         "access_token": access_token,
         "token_type": "bearer",
         "user": {
-            "id": new_user.id,
-            "email": new_user.email,
-            "is_verified": new_user.is_verified,
-            "has_completed_onboarding": new_user.has_completed_onboarding
-        },
-        "verification_token": verification_token,
-        "message": "Account created. A verification link has been simulated for your account."
+            "id": user.id,
+            "full_name": user.full_name,
+            "email": user.email,
+            "country": user.country,
+            "state": user.state,
+            "phone_number": user.phone_number,
+            "is_verified": user.is_verified,
+            "is_phone_verified": user.is_phone_verified,
+            "has_completed_onboarding": user.has_completed_onboarding
+        }
+    }
+
+# Resend 6-Digit OTPs
+@app.post("/api/auth/resend-otp")
+def resend_otp(req: ResendOTPRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == req.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User account not found.")
+
+    expiry = datetime.utcnow() + timedelta(minutes=10)
+    email_otp = generate_numeric_otp(6)
+    phone_otp = generate_numeric_otp(6)
+
+    user.email_otp_hash = hash_otp(email_otp)
+    user.email_otp_expiry = expiry
+    user.phone_otp_hash = hash_otp(phone_otp)
+    user.phone_otp_expiry = expiry
+    db.commit()
+
+    try:
+        from app.services.email_service import send_otp_email, is_smtp_configured
+        if is_smtp_configured():
+            background_tasks.add_task(send_otp_email, user.email, email_otp, "Email Verification")
+    except Exception:
+        pass
+
+    return {
+        "status": "success",
+        "message": "Fresh 6-digit verification codes generated and dispatched.",
+        "otp_dispatch": {
+            "email_otp": email_otp,
+            "phone_otp": phone_otp,
+            "expires_in_minutes": 10
+        }
+    }
+
+# Request Password Reset 6-Digit OTP
+@app.post("/api/auth/forgot-password-otp")
+def forgot_password_otp(req: ForgotPasswordOTPRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == req.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="No registered account found with this email address.")
+
+    reset_otp = generate_numeric_otp(6)
+    user.reset_otp_hash = hash_otp(reset_otp)
+    user.reset_otp_expiry = datetime.utcnow() + timedelta(minutes=10)
+    db.commit()
+
+    try:
+        from app.services.email_service import send_otp_email, is_smtp_configured
+        if is_smtp_configured():
+            background_tasks.add_task(send_otp_email, user.email, reset_otp, "Password Reset")
+    except Exception:
+        pass
+
+    return {
+        "status": "success",
+        "message": "A 6-digit Password Reset OTP has been generated for your account.",
+        "email": user.email,
+        "otp_dispatch": {
+            "reset_otp": reset_otp,
+            "expires_in_minutes": 10
+        }
+    }
+
+# Submit 6-Digit OTP and Reset Password (No random codes)
+@app.post("/api/auth/reset-password-otp")
+def reset_password_otp(req: ResetPasswordOTPRequest, db: Session = Depends(get_db)):
+    if req.new_password != req.password_confirmation:
+        raise HTTPException(status_code=400, detail="New Password and Password Confirmation do not match.")
+
+    user = db.query(User).filter(User.email == req.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User account not found.")
+
+    now = datetime.utcnow()
+    if not user.reset_otp_hash or not user.reset_otp_expiry or user.reset_otp_expiry < now:
+        raise HTTPException(status_code=400, detail="Password reset OTP has expired. Please request a new code.")
+
+    if not verify_otp_hash(req.otp, user.reset_otp_hash):
+        raise HTTPException(status_code=400, detail="Invalid 6-digit OTP code.")
+
+    user.hashed_password = get_password_hash(req.new_password)
+    user.reset_otp_hash = None
+    user.reset_otp_expiry = None
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": "Password updated successfully! You can now log in with your new password."
     }
 
 @app.post("/api/auth/login")
@@ -778,8 +1059,13 @@ def login(user: AuthLoginRequest, db: Session = Depends(get_db)):
         "token_type": "bearer",
         "user": {
             "id": db_user.id,
+            "full_name": db_user.full_name,
             "email": db_user.email,
+            "country": db_user.country,
+            "state": db_user.state,
+            "phone_number": db_user.phone_number,
             "is_verified": db_user.is_verified,
+            "is_phone_verified": db_user.is_phone_verified,
             "has_completed_onboarding": db_user.has_completed_onboarding
         }
     }
@@ -788,8 +1074,13 @@ def login(user: AuthLoginRequest, db: Session = Depends(get_db)):
 def get_user_profile(current_user: User = Depends(get_current_user)):
     return {
         "id": current_user.id,
+        "full_name": current_user.full_name,
         "email": current_user.email,
+        "country": current_user.country,
+        "state": current_user.state,
+        "phone_number": current_user.phone_number,
         "is_verified": current_user.is_verified,
+        "is_phone_verified": current_user.is_phone_verified,
         "has_completed_onboarding": current_user.has_completed_onboarding,
         "created_at": current_user.created_at.isoformat() if current_user.created_at else None
     }

@@ -115,10 +115,39 @@ export default function Dashboard() {
       {/* Top Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-display text-white tracking-tight">Personal Dashboard</h1>
-          <p className="text-gray-400 text-xs mt-1">
-            Row-level isolated price tracking & notifications for <strong className="text-white">{currentUser?.email || 'User'}</strong>
-          </p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-3xl font-bold font-display text-white tracking-tight">Personal Dashboard</h1>
+            {currentUser?.is_verified && (
+              <span className="text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" />
+                <span>Verified User</span>
+              </span>
+            )}
+          </div>
+          <div className="text-gray-400 text-xs mt-1 space-y-1">
+            <p>
+              Signed in as <strong className="text-white">{currentUser?.full_name ? `${currentUser.full_name} (${currentUser.email})` : currentUser?.email || 'User'}</strong>
+            </p>
+            {(currentUser?.country || currentUser?.phone_number) && (
+              <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 font-mono">
+                {currentUser.country && <span>📍 {currentUser.state ? `${currentUser.state}, ` : ''}{currentUser.country}</span>}
+                {currentUser.phone_number && (
+                  <>
+                    <span>&bull;</span>
+                    <span>📱 {currentUser.phone_number}</span>
+                  </>
+                )}
+                <span>&bull;</span>
+                <span className={currentUser.is_phone_verified ? "text-emerald-400" : "text-amber-400"}>
+                  {currentUser.is_phone_verified ? "✓ Phone Verified" : "⚠ Phone Unverified"}
+                </span>
+                <span>&bull;</span>
+                <span className={currentUser.is_verified ? "text-emerald-400" : "text-amber-400"}>
+                  {currentUser.is_verified ? "✓ Email Verified" : "⚠ Email Unverified"}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <button

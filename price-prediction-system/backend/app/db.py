@@ -29,7 +29,10 @@ def get_db():
 
 def init_db():
     # Ensure all models are imported and registered with Base.metadata
-    from app.models import User, Alert, Product, PlatformListing, AnalyticsEvent, AuditErrorLog
+    try:
+        from app.models import User, Alert, Product, PlatformListing, AnalyticsEvent, AuditErrorLog
+    except ImportError:
+        from backend.app.models import User, Alert, Product, PlatformListing, AnalyticsEvent, AuditErrorLog
     Base.metadata.create_all(bind=engine)
     with engine.connect() as conn:
         try:
@@ -58,6 +61,30 @@ def init_db():
                 conn.execute(text("ALTER TABLE users ADD COLUMN has_completed_onboarding BOOLEAN DEFAULT 0"))
             if "created_at" not in user_cols:
                 conn.execute(text("ALTER TABLE users ADD COLUMN created_at TIMESTAMP"))
+
+            # Extended user profile & OTP security columns
+            if "full_name" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN full_name VARCHAR"))
+            if "country" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN country VARCHAR"))
+            if "state" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN state VARCHAR"))
+            if "phone_number" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN phone_number VARCHAR"))
+            if "is_phone_verified" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN is_phone_verified BOOLEAN DEFAULT 0"))
+            if "email_otp_hash" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN email_otp_hash VARCHAR"))
+            if "email_otp_expiry" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN email_otp_expiry TIMESTAMP"))
+            if "phone_otp_hash" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN phone_otp_hash VARCHAR"))
+            if "phone_otp_expiry" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN phone_otp_expiry TIMESTAMP"))
+            if "reset_otp_hash" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN reset_otp_hash VARCHAR"))
+            if "reset_otp_expiry" not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN reset_otp_expiry TIMESTAMP"))
 
             conn.commit()
         except Exception as e:

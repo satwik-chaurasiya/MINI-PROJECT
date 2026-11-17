@@ -108,11 +108,23 @@ function Navigation({ userEmail, onLogout, toggleTheme, onOpenOnboarding }) {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-2 sm:space-x-3 text-sm">
-          <Link to="/" className={getNavClass("/")}>Home</Link>
-          <Link to="/compare" className={getNavClass("/compare")}>Compare</Link>
+          {userEmail ? (
+            <>
+              <Link to="/" className={getNavClass("/")}>Forecaster</Link>
+              <Link to="/compare" className={getNavClass("/compare")}>Compare Matrix</Link>
+              <Link to="/dashboard" className={getNavClass("/dashboard")}>Watchlist</Link>
+              <Link to="/admin" className={getNavClass("/admin")}>Admin</Link>
+            </>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-mono text-rose-300 bg-rose-500/10 border border-rose-500/30 px-3 py-1 rounded-lg flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-rose-400 animate-ping" />
+                <span>Protected App &bull; Sign In Required</span>
+              </span>
+            </div>
+          )}
+          
           <Link to="/contact" className={getNavClass("/contact")}>Contact</Link>
-          <Link to="/dashboard" className={getNavClass("/dashboard")}>Dashboard</Link>
-          <Link to="/admin" className={getNavClass("/admin")}>Admin</Link>
           
           <button 
             onClick={toggleTheme}
@@ -139,7 +151,7 @@ function Navigation({ userEmail, onLogout, toggleTheme, onOpenOnboarding }) {
               onClick={() => navigate('/auth')}
               className="btn-primary btn-shimmer px-4 py-2 rounded-xl text-neutral-950 font-semibold text-xs inline-flex items-center gap-1 cursor-pointer active:scale-95"
             >
-              <span>Get Started</span>
+              <span>Sign In / Register</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
           )}
@@ -272,9 +284,26 @@ export default function App() {
     setTheme(nextTheme);
   };
 
+  const handleLoginSuccess = (email, user) => {
+    setUserEmail(email);
+    if (user && user.full_name) {
+      localStorage.setItem('pricespy_fullname', user.full_name);
+    }
+    setToast({
+      type: 'success',
+      message: `Welcome, ${user?.full_name || email}! Account verified & active.`
+    });
+    api.get('/api/auth/me').then(res => {
+      if (res.data && res.data.has_completed_onboarding === false) {
+        setShowOnboarding(true);
+      }
+    }).catch(() => {});
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('pricespy_token');
     localStorage.removeItem('pricespy_user');
+    localStorage.removeItem('pricespy_fullname');
     setUserEmail(null);
     setToast({
       type: 'info',
@@ -319,20 +348,29 @@ export default function App() {
           <main className="max-w-7xl mx-auto mt-6 sm:mt-8 flex-1 w-full">
             <ErrorBoundary>
               <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/compare" element={<ComparePage />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/auth" element={<AuthPage onLoginSuccess={(email) => {
-                  setUserEmail(email);
-                  // Check if user needs onboarding
-                  api.get('/api/auth/me').then(res => {
-                    if (res.data && res.data.has_completed_onboarding === false) {
-                      setShowOnboarding(true);
-                    }
-                  }).catch(() => {});
-                }} />} />
+                {/* When logged in: Full platform unlocked */}
+                {userEmail ? (
+                  <>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/compare" element={<ComparePage />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/product/:id" element={<ProductDetail />} />
+                    <Route path="/auth" element={<LandingPage />} />
+                  </>
+                ) : (
+                  /* When unauthenticated: Login/Registration Gateway is the Landing Screen */
+                  <>
+                    <Route path="/" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
+                    <Route path="/auth" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
+                    <Route path="/compare" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
+                    <Route path="/dashboard" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
+                    <Route path="/admin" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
+                    <Route path="/product/:id" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
+                  </>
+                )}
+                
+                {/* Informational & Legal routes */}
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/contact" element={<ContactPage />} />

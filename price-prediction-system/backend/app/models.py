@@ -9,10 +9,24 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
+    full_name = Column(String, nullable=True)
+    country = Column(String, nullable=True)
+    state = Column(String, nullable=True)
+    phone_number = Column(String, nullable=True)
     is_verified = Column(Boolean, default=False)
+    is_phone_verified = Column(Boolean, default=False)
     verification_token = Column(String, nullable=True)
     reset_token = Column(String, nullable=True)
     reset_token_expiry = Column(DateTime, nullable=True)
+    
+    # Hashed 6-Digit OTP Security Layer
+    email_otp_hash = Column(String, nullable=True)
+    email_otp_expiry = Column(DateTime, nullable=True)
+    phone_otp_hash = Column(String, nullable=True)
+    phone_otp_expiry = Column(DateTime, nullable=True)
+    reset_otp_hash = Column(String, nullable=True)
+    reset_otp_expiry = Column(DateTime, nullable=True)
+
     has_completed_onboarding = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
