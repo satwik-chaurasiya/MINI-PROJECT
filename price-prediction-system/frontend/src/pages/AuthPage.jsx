@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   Lock, Mail, User, Globe, MapPin, Phone, CheckCircle2, 
   AlertCircle, ArrowRight, Loader2, KeyRound, ShieldCheck, 
-  Eye, EyeOff, RefreshCw, Smartphone
+  Eye, EyeOff, RefreshCw, Smartphone, Clock, AlertTriangle
 } from 'lucide-react';
 import api from '../services/api';
 import { trackEvent } from '../services/analytics';
@@ -41,6 +41,10 @@ export default function AuthPage({ onLoginSuccess }) {
   const [newPasswordConfirmation, setNewPasswordConfirmation] = useState('');
   const [otpDispatch, setOtpDispatch] = useState(null);
 
+  // 5-Minute OTP Timer States (300 seconds)
+  const [timeLeft, setTimeLeft] = useState(300);
+  const [timerActive, setTimerActive] = useState(false);
+
   // UI helpers
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -49,6 +53,38 @@ export default function AuthPage({ onLoginSuccess }) {
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // Active 5-minute countdown timer effect
+  useEffect(() => {
+    let interval = null;
+    if (timerActive && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            setTimerActive(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [timerActive, timeLeft]);
+
+  const startTimer = (seconds = 300) => {
+    setTimeLeft(seconds);
+    setTimerActive(true);
+  };
+
+  const formatTimer = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const isOtpExpired = (mode === 'verify_otp' || mode === 'reset_otp') && timeLeft === 0;
 
   useEffect(() => {
     const urlMode = searchParams.get('mode');
@@ -143,7 +179,8 @@ export default function AuthPage({ onLoginSuccess }) {
       if (res.data.requires_otp && res.data.otp_dispatch) {
         setOtpDispatch(res.data.otp_dispatch);
         setMode('verify_otp');
-        setSuccessMsg(res.data.message || 'OTPs generated! Please manually enter both 6-digit codes below.');
+        startTimer(res.data.otp_dispatch.expires_in_seconds || 300);
+        setSuccessMsg(res.data.message || 'OTPs generated! You have 5 minutes to complete verification before expiry.');
       } else {
         setSuccessMsg('Account created successfully!');
         setMode('login');
@@ -162,6 +199,11 @@ export default function AuthPage({ onLoginSuccess }) {
     e.preventDefault();
     setError('');
     setSuccessMsg('');
+
+    if (isOtpExpired) {
+      setError('The 5-minute timer has expired! The previously sent OTPs are no longer valid. Please click "Resend New OTPs" to request fresh codes.');
+      return;
+    }
 
     if (!emailOtp.trim() || emailOtp.trim().length !== 6) {
       setError('Please enter the complete 6-digit Email OTP.');
@@ -190,13 +232,13 @@ export default function AuthPage({ onLoginSuccess }) {
       setSuccessMsg('Both OTPs verified successfully! Your account is active.');
       setTimeout(() => navigate('/'), 800);
     } catch (err) {
-      setError(err.response?.data?.detail || 'OTP verification failed. Please check the entered digits.');
+      setError(err.response?.data?.detail || 'OTP verification failed. Please check the entered digits or request a fresh OTP.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Resend OTPs
+  // Resend OTPs (Restarts 5-minute timer)
   const handleResendOtp = async () => {
     setLoading(true);
     setError('');
@@ -204,8 +246,11 @@ export default function AuthPage({ onLoginSuccess }) {
       const res = await api.post('/api/auth/resend-otp', { email, otp_type: 'all' });
       if (res.data.otp_dispatch) {
         setOtpDispatch(res.data.otp_dispatch);
+        startTimer(res.data.otp_dispatch.expires_in_seconds || 300);
       }
-      setSuccessMsg('Fresh 6-digit OTP codes have been dispatched!');
+      setEmailOtp('');
+      setPhoneOtp('');
+      setSuccessMsg('Fresh 6-digit OTP codes have been dispatched! 5-minute timer restarted.');
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to resend OTPs.');
     } finally {
@@ -232,7 +277,9 @@ export default function AuthPage({ onLoginSuccess }) {
       if (res.data.otp_dispatch) {
         setOtpDispatch(res.data.otp_dispatch);
         setMode('reset_otp');
-        setSuccessMsg(res.data.message || '6-digit OTP generated! Enter it below to reset your password.');
+        startTimer(res.data.otp_dispatch.expires_in_seconds || 300);
+        setResetOtp('');
+        setSuccessMsg(res.data.message || '6-digit Reset OTP generated! Valid for 5 minutes.');
       }
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to request password reset OTP.');
@@ -248,6 +295,11 @@ export default function AuthPage({ onLoginSuccess }) {
     e.preventDefault();
     setError('');
     setSuccessMsg('');
+
+    if (isOtpExpired) {
+      setError('The 5-minute timer has expired! This Reset OTP is no longer valid. Please request a new Reset OTP code below.');
+      return;
+    }
 
     if (!resetOtp.trim() || resetOtp.trim().length !== 6) {
       setError('Please enter the valid 6-digit Reset OTP.');
@@ -332,55 +384,87 @@ export default function AuthPage({ onLoginSuccess }) {
         {/* ========================================================= */}
         {otpDispatch && (mode === 'verify_otp' || mode === 'reset_otp') && (
           <div className="mb-6 p-4 rounded-2xl bg-gradient-to-br from-[#A31C1B]/20 to-neutral-950 border border-[#A31C1B]/40 space-y-3 shadow-inner">
-            <div className="flex items-center justify-between text-xs font-semibold text-rose-300">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-rose-300">
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-rose-400" />
-                <span>Security Dispatch Terminal (Encrypted &amp; Hashed in DB)</span>
+                <span>Security Dispatch Terminal (Hashed &amp; Salted in DB)</span>
               </div>
-              <span className="text-[10px] text-gray-400 font-mono">Expires in 10m</span>
+              <div className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold border transition ${
+                timeLeft > 60
+                  ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-400'
+                  : timeLeft > 0
+                  ? 'bg-amber-950/80 border-amber-500/50 text-amber-400 animate-pulse'
+                  : 'bg-rose-950 border-rose-500 text-rose-300'
+              }`}>
+                <Clock className="w-3.5 h-3.5" />
+                <span>{timeLeft > 0 ? `Expires: ${formatTimer(timeLeft)}` : 'OTP Expired (5m)'}</span>
+              </div>
             </div>
 
-            <p className="text-[11px] text-gray-300">
-              These codes are hashed using SHA-256 + cryptographic salt in the database. Please manually enter them in the form below. Automatic verification is disabled.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-              {otpDispatch.email_otp && (
-                <div className="bg-black/50 border border-white/10 rounded-xl p-3 text-center">
-                  <div className="text-[10px] text-gray-400 flex items-center justify-center gap-1 mb-1">
-                    <Mail className="w-3 h-3 text-sky-400" />
-                    <span>Email OTP</span>
-                  </div>
-                  <div className="font-mono text-xl sm:text-2xl font-bold tracking-widest text-sky-300">
-                    {otpDispatch.email_otp}
+            {isOtpExpired ? (
+              <div className="p-3.5 bg-rose-950/90 border border-rose-500/50 rounded-xl text-xs text-rose-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+                  <div>
+                    <p className="font-bold text-rose-300">5-Minute Timer Ran Out</p>
+                    <p className="text-[11px] text-gray-300">This OTP is no longer valid. You must re-request for a fresh OTP.</p>
                   </div>
                 </div>
-              )}
+                <button
+                  type="button"
+                  onClick={mode === 'verify_otp' ? handleResendOtp : handleRequestPasswordOtp}
+                  disabled={loading}
+                  className="shrink-0 px-3.5 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Re-request OTP</span>
+                </button>
+              </div>
+            ) : (
+              <>
+                <p className="text-[11px] text-gray-300">
+                  These codes are hashed using SHA-256 + cryptographic salt in the database. Valid for exactly 5 minutes. Enter them manually in the fields below.
+                </p>
 
-              {otpDispatch.phone_otp && (
-                <div className="bg-black/50 border border-white/10 rounded-xl p-3 text-center">
-                  <div className="text-[10px] text-gray-400 flex items-center justify-center gap-1 mb-1">
-                    <Smartphone className="w-3 h-3 text-emerald-400" />
-                    <span>Phone OTP</span>
-                  </div>
-                  <div className="font-mono text-xl sm:text-2xl font-bold tracking-widest text-emerald-300">
-                    {otpDispatch.phone_otp}
-                  </div>
-                </div>
-              )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                  {otpDispatch.email_otp && (
+                    <div className="bg-black/50 border border-white/10 rounded-xl p-3 text-center">
+                      <div className="text-[10px] text-gray-400 flex items-center justify-center gap-1 mb-1">
+                        <Mail className="w-3 h-3 text-sky-400" />
+                        <span>Email OTP (Valid 5 mins)</span>
+                      </div>
+                      <div className="font-mono text-xl sm:text-2xl font-bold tracking-widest text-sky-300">
+                        {otpDispatch.email_otp}
+                      </div>
+                    </div>
+                  )}
 
-              {otpDispatch.reset_otp && (
-                <div className="sm:col-span-2 bg-black/50 border border-rose-500/30 rounded-xl p-3 text-center">
-                  <div className="text-[10px] text-gray-400 flex items-center justify-center gap-1 mb-1">
-                    <KeyRound className="w-3 h-3 text-rose-400" />
-                    <span>Password Reset 6-Digit OTP</span>
-                  </div>
-                  <div className="font-mono text-2xl sm:text-3xl font-bold tracking-widest text-rose-300">
-                    {otpDispatch.reset_otp}
-                  </div>
+                  {otpDispatch.phone_otp && (
+                    <div className="bg-black/50 border border-white/10 rounded-xl p-3 text-center">
+                      <div className="text-[10px] text-gray-400 flex items-center justify-center gap-1 mb-1">
+                        <Smartphone className="w-3 h-3 text-emerald-400" />
+                        <span>Phone OTP (Valid 5 mins)</span>
+                      </div>
+                      <div className="font-mono text-xl sm:text-2xl font-bold tracking-widest text-emerald-300">
+                        {otpDispatch.phone_otp}
+                      </div>
+                    </div>
+                  )}
+
+                  {otpDispatch.reset_otp && (
+                    <div className="sm:col-span-2 bg-black/50 border border-rose-500/30 rounded-xl p-3 text-center">
+                      <div className="text-[10px] text-gray-400 flex items-center justify-center gap-1 mb-1">
+                        <KeyRound className="w-3 h-3 text-rose-400" />
+                        <span>Password Reset 6-Digit OTP (Valid 5 mins)</span>
+                      </div>
+                      <div className="font-mono text-2xl sm:text-3xl font-bold tracking-widest text-rose-300">
+                        {otpDispatch.reset_otp}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </>
+            )}
           </div>
         )}
 
@@ -660,14 +744,44 @@ export default function AuthPage({ onLoginSuccess }) {
               <span className="text-[10px] text-gray-500">Must match the 6-digit code shown in the security box above.</span>
             </div>
 
+            <div className="flex items-center justify-between text-xs py-1 px-1 bg-black/30 rounded-lg border border-white/5">
+              <span className="text-gray-400 text-[11px] flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5 text-gray-500" />
+                <span>Security Window:</span>
+              </span>
+              <span className={`font-mono text-xs font-bold ${
+                timeLeft > 60 ? 'text-emerald-400' : timeLeft > 0 ? 'text-amber-400' : 'text-rose-400'
+              }`}>
+                {timeLeft > 0 ? `${formatTimer(timeLeft)} remaining` : 'Expired — Re-request required'}
+              </span>
+            </div>
+
             <button
               type="submit"
-              disabled={loading}
-              className="w-full btn-primary py-3 rounded-xl text-xs font-bold text-neutral-950 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-900/20"
+              disabled={loading || isOtpExpired}
+              className={`w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg transition ${
+                isOtpExpired
+                  ? 'bg-neutral-800 text-gray-400 cursor-not-allowed border border-white/10'
+                  : 'btn-primary text-neutral-950 shadow-emerald-900/20'
+              }`}
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>Verify Codes &amp; Unlock Application</span>}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                isOtpExpired ? <span>OTP Expired — Re-request Code Below</span> : <span>Verify Codes &amp; Unlock Application</span>
+              )}
               <CheckCircle2 className="w-4 h-4" />
             </button>
+
+            {isOtpExpired && (
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                disabled={loading}
+                className="w-full py-3 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-neutral-950 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-amber-900/30 transition animate-pulse"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Timer Expired — Re-request Fresh 5-Minute OTP</span>
+              </button>
+            )}
 
             <div className="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-white/5">
               <button
@@ -804,14 +918,44 @@ export default function AuthPage({ onLoginSuccess }) {
               </div>
             </div>
 
+            <div className="flex items-center justify-between text-xs py-1 px-1 bg-black/30 rounded-lg border border-white/5">
+              <span className="text-gray-400 text-[11px] flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5 text-gray-500" />
+                <span>Reset Security Window:</span>
+              </span>
+              <span className={`font-mono text-xs font-bold ${
+                timeLeft > 60 ? 'text-emerald-400' : timeLeft > 0 ? 'text-amber-400' : 'text-rose-400'
+              }`}>
+                {timeLeft > 0 ? `${formatTimer(timeLeft)} remaining` : 'Expired — Re-request required'}
+              </span>
+            </div>
+
             <button
               type="submit"
-              disabled={loading}
-              className="w-full btn-primary py-3 rounded-xl text-xs font-bold text-neutral-950 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-rose-900/20"
+              disabled={loading || isOtpExpired}
+              className={`w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg transition ${
+                isOtpExpired
+                  ? 'bg-neutral-800 text-gray-400 cursor-not-allowed border border-white/10'
+                  : 'btn-primary text-neutral-950 shadow-rose-900/20'
+              }`}
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-              <span>Verify OTP &amp; Update Password</span>
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                isOtpExpired ? <span>Reset OTP Expired — Re-request Below</span> : <span>Verify OTP &amp; Update Password</span>
+              )}
+              <CheckCircle2 className="w-4 h-4" />
             </button>
+
+            {isOtpExpired && (
+              <button
+                type="button"
+                onClick={handleRequestPasswordOtp}
+                disabled={loading}
+                className="w-full py-3 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-neutral-950 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-amber-900/30 transition animate-pulse"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Timer Expired — Re-request Fresh Reset OTP</span>
+              </button>
+            )}
 
             <div className="text-center pt-2">
               <button

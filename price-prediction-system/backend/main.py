@@ -780,7 +780,7 @@ def register(user: AuthRegisterRequest, background_tasks: BackgroundTasks, db: S
         if not existing_user.is_verified and not existing_user.is_phone_verified:
             email_otp = generate_numeric_otp(6)
             phone_otp = generate_numeric_otp(6)
-            expiry = datetime.utcnow() + timedelta(minutes=10)
+            expiry = datetime.utcnow() + timedelta(minutes=5)
             existing_user.email_otp_hash = hash_otp(email_otp)
             existing_user.email_otp_expiry = expiry
             existing_user.phone_otp_hash = hash_otp(phone_otp)
@@ -806,7 +806,7 @@ def register(user: AuthRegisterRequest, background_tasks: BackgroundTasks, db: S
                 "token_type": "bearer",
                 "verification_token": existing_user.verification_token or "demo-token",
                 "requires_otp": True,
-                "message": "Account pending verification. Generated fresh 6-digit OTPs.",
+                "message": "Account pending verification. Generated fresh 6-digit OTPs (valid for 5 minutes).",
                 "email": existing_user.email,
                 "user": {
                     "id": existing_user.id,
@@ -822,15 +822,16 @@ def register(user: AuthRegisterRequest, background_tasks: BackgroundTasks, db: S
                 "otp_dispatch": {
                     "email_otp": email_otp,
                     "phone_otp": phone_otp,
-                    "expires_in_minutes": 10
+                    "expires_in_minutes": 5,
+                    "expires_in_seconds": 300
                 }
             }
         raise HTTPException(status_code=400, detail="An account with this email address already exists. Please sign in.")
 
-    # Generate 6-digit OTPs for Email and Phone Number
+    # Generate 6-digit OTPs for Email and Phone Number (5-minute strictly enforced validity)
     email_otp = generate_numeric_otp(6)
     phone_otp = generate_numeric_otp(6)
-    expiry = datetime.utcnow() + timedelta(minutes=10)
+    expiry = datetime.utcnow() + timedelta(minutes=5)
     
     hashed_password = get_password_hash(user.password)
     verification_token = secrets.token_urlsafe(32)
@@ -871,7 +872,7 @@ def register(user: AuthRegisterRequest, background_tasks: BackgroundTasks, db: S
         "token_type": "bearer",
         "verification_token": verification_token,
         "requires_otp": True,
-        "message": "Registration successful! Please verify the 6-digit Email OTP and Phone OTP.",
+        "message": "Registration successful! Please verify the 6-digit Email OTP and Phone OTP (valid for 5 minutes).",
         "email": new_user.email,
         "user": {
             "id": new_user.id,
@@ -887,7 +888,8 @@ def register(user: AuthRegisterRequest, background_tasks: BackgroundTasks, db: S
         "otp_dispatch": {
             "email_otp": email_otp,
             "phone_otp": phone_otp,
-            "expires_in_minutes": 10
+            "expires_in_minutes": 5,
+            "expires_in_seconds": 300
         }
     }
 
@@ -906,7 +908,10 @@ def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
     if req.email_otp:
         clean_email_otp = req.email_otp.strip()
         if not user.email_otp_hash or not user.email_otp_expiry or user.email_otp_expiry < now:
-            errors.append("Email OTP has expired. Please request a new code.")
+            # Invalidate expired OTP immediately
+            user.email_otp_hash = None
+            user.email_otp_expiry = None
+            errors.append("Email OTP has expired (5-minute timer ran out). This OTP is no longer valid. Please request a new OTP.")
         elif not verify_otp_hash(clean_email_otp, user.email_otp_hash):
             errors.append("Invalid 6-digit Email OTP.")
         else:
@@ -919,7 +924,10 @@ def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
     if req.phone_otp:
         clean_phone_otp = req.phone_otp.strip()
         if not user.phone_otp_hash or not user.phone_otp_expiry or user.phone_otp_expiry < now:
-            errors.append("Phone OTP has expired. Please request a new code.")
+            # Invalidate expired OTP immediately
+            user.phone_otp_hash = None
+            user.phone_otp_expiry = None
+            errors.append("Phone OTP has expired (5-minute timer ran out). This OTP is no longer valid. Please request a new OTP.")
         elif not verify_otp_hash(clean_phone_otp, user.phone_otp_hash):
             errors.append("Invalid 6-digit Phone OTP.")
         else:
@@ -957,14 +965,14 @@ def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
         }
     }
 
-# Resend 6-Digit OTPs
+# Resend 6-Digit OTPs (Strict 5-minute validity)
 @app.post("/api/auth/resend-otp")
 def resend_otp(req: ResendOTPRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == req.email).first()
     if not user:
         raise HTTPException(status_code=404, detail="User account not found.")
 
-    expiry = datetime.utcnow() + timedelta(minutes=10)
+    expiry = datetime.utcnow() + timedelta(minutes=5)
     email_otp = generate_numeric_otp(6)
     phone_otp = generate_numeric_otp(6)
 
@@ -983,15 +991,16 @@ def resend_otp(req: ResendOTPRequest, background_tasks: BackgroundTasks, db: Ses
 
     return {
         "status": "success",
-        "message": "Fresh 6-digit verification codes generated and dispatched.",
+        "message": "Fresh 6-digit verification codes generated and dispatched (strictly valid for 5 minutes).",
         "otp_dispatch": {
             "email_otp": email_otp,
             "phone_otp": phone_otp,
-            "expires_in_minutes": 10
+            "expires_in_minutes": 5,
+            "expires_in_seconds": 300
         }
     }
 
-# Request Password Reset 6-Digit OTP
+# Request Password Reset 6-Digit OTP (Strict 5-minute validity)
 @app.post("/api/auth/forgot-password-otp")
 def forgot_password_otp(req: ForgotPasswordOTPRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == req.email).first()
@@ -1000,7 +1009,7 @@ def forgot_password_otp(req: ForgotPasswordOTPRequest, background_tasks: Backgro
 
     reset_otp = generate_numeric_otp(6)
     user.reset_otp_hash = hash_otp(reset_otp)
-    user.reset_otp_expiry = datetime.utcnow() + timedelta(minutes=10)
+    user.reset_otp_expiry = datetime.utcnow() + timedelta(minutes=5)
     db.commit()
 
     try:
@@ -1012,11 +1021,12 @@ def forgot_password_otp(req: ForgotPasswordOTPRequest, background_tasks: Backgro
 
     return {
         "status": "success",
-        "message": "A 6-digit Password Reset OTP has been generated for your account.",
+        "message": "A 6-digit Password Reset OTP has been generated for your account (valid for 5 minutes).",
         "email": user.email,
         "otp_dispatch": {
             "reset_otp": reset_otp,
-            "expires_in_minutes": 10
+            "expires_in_minutes": 5,
+            "expires_in_seconds": 300
         }
     }
 
@@ -1032,7 +1042,11 @@ def reset_password_otp(req: ResetPasswordOTPRequest, db: Session = Depends(get_d
 
     now = datetime.utcnow()
     if not user.reset_otp_hash or not user.reset_otp_expiry or user.reset_otp_expiry < now:
-        raise HTTPException(status_code=400, detail="Password reset OTP has expired. Please request a new code.")
+        # Invalidate expired OTP immediately
+        user.reset_otp_hash = None
+        user.reset_otp_expiry = None
+        db.commit()
+        raise HTTPException(status_code=400, detail="Password reset OTP has expired (5-minute timer ran out). This OTP is no longer valid. Please request a new OTP.")
 
     if not verify_otp_hash(req.otp, user.reset_otp_hash):
         raise HTTPException(status_code=400, detail="Invalid 6-digit OTP code.")

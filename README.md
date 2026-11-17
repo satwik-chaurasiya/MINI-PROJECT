@@ -99,7 +99,7 @@ To create an account, the user provides their basic profile information:
   * 📱 **Phone SMS Verification OTP** (e.g., `837192`)
 * **How Security is Handled:**
   * In the database, the raw OTP is **never stored in plaintext**. It is hashed using **SHA-256 with a secret cryptographic salt**.
-  * Both OTPs have a strict **10-minute expiration window**.
+  * Both OTPs have a strict **5-minute expiration countdown window** with live visual timer feedback. If the timer runs out, the OTP is invalidated in the database and the user must click **Re-request OTP** to generate fresh codes.
   * The codes are securely presented in a dedicated **Security Dispatch Terminal** on screen (and dispatched via email if an SMTP server is connected).
   * **No Automatic Verification Bypass:** The user **must manually type** the 6 digits for the Email OTP and the 6 digits for the Phone OTP into the form.
   * Once submitted, the backend verifies the hashes in constant time. Upon successful verification, the account is activated, an encrypted JWT token is issued, and the entire platform unlocks!
@@ -107,7 +107,8 @@ To create an account, the user provides their basic profile information:
 ### 4. Password Recovery with 6-Digit Email OTP
 * If a user forgets their password, they click **"Forgot password?"** on the Sign In screen.
 * They enter their registered email address.
-* The system generates a fresh **6-digit numeric OTP**, hashes it in the database with a 10-minute expiry, and provides the OTP to the user.
+* The system generates a fresh **6-digit numeric OTP**, hashes it in the database with a **5-minute timer**, and provides the OTP to the user.
+* If the 5-minute timer runs out, the OTP expires and is automatically invalidated; the user can easily re-request a new code with one click.
 * The user types the **6-digit Reset OTP**, enters their **new password**, and confirms it.
 * The backend verifies the OTP hash and securely re-hashes the new password using **salted bcrypt**.
 

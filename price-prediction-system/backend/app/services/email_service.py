@@ -112,13 +112,13 @@ Your 6-digit one-time password (OTP) for {purpose} is:
 
 {otp}
 
-This code expires in 10 minutes. For your security, do not share this code with anyone.
+This code expires in 5 minutes. For your security, do not share this code with anyone.
 """
     html_content = f"""
     <div style="font-family: Arial, sans-serif; background-color: #0b0f19; color: #ffffff; padding: 28px; border-radius: 16px; border: 1px solid #1f2937; max-width: 480px; margin: 0 auto;">
         <h2 style="color: #f43f5e; margin-top: 0;">PriceSpy Pro 🔮</h2>
         <h3 style="color: #ffffff; font-size: 18px; margin-bottom: 8px;">{purpose}</h3>
-        <p style="color: #9ca3af; font-size: 13px; line-height: 1.5;">Please use the 6-digit security OTP below to complete verification. This code is valid for 10 minutes.</p>
+        <p style="color: #9ca3af; font-size: 13px; line-height: 1.5;">Please use the 6-digit security OTP below to complete verification. This code is strictly valid for 5 minutes.</p>
         <div style="background: linear-gradient(135deg, rgba(163,28,27,0.2), rgba(244,63,94,0.1)); border: 1px solid #A31C1B; padding: 16px 24px; font-family: monospace; font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center; border-radius: 12px; color: #fda4af; margin: 20px 0;">
             {otp}
         </div>
