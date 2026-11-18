@@ -38,6 +38,100 @@ Shoppers frequently overpay because they lack foresight into whether a product's
 
 ---
 
+## 🌟 Core Project Framework: Overview & Key Pillars
+
+> [!IMPORTANT]
+> The following four sections provide a comprehensive breakdown of the project's strategic vertical, architectural logic, operational mechanics, and foundational assumptions.
+
+### 1. 🎯 Your Chosen Vertical
+* **Primary Industry & Vertical:** **E-Commerce Price Intelligence & Predictive Consumer FinTech (Retail Analytics)**.
+* **Domain Sub-Segment:** Multi-store consumer electronics pricing, dynamic pricing volatility modeling, and optimal purchase timing optimization.
+* **Target Audience:** Modern digital shoppers, consumer electronics buyers, bargain hunters, and retail market researchers who frequently purchase across platforms like **Amazon, Flipkart, Walmart, and eBay**.
+* **Problem Addressed:** E-commerce marketplaces deploy dynamic, automated surge-pricing algorithms that adjust product prices dozens of times per week depending on user demand, inventory levels, competitor reactions, and festive events. Uninformed consumers frequently suffer from severe buyer's remorse when an item drops in price days after buying, or miss brief flash discount windows due to the impracticality of tracking prices across multiple competing stores manually.
+
+---
+
+### 2. 🧩 Approach and Logic
+PriceSpy Pro approaches consumer price tracking as an **autonomous, end-to-end predictive decision-support system** rather than a passive web scraper:
+
+1. **Decoupled Layered Micro-Monolith Architecture:**
+   * **Presentation Layer (React 19 SPA):** Fast, reactive, responsive interface featuring real-time financial trajectory charts (Recharts), dark/light/retro themes, and security status terminals.
+   * **Application & Security Layer (FastAPI 3.11):** High-performance asynchronous REST API handling JWT token issuance, sliding-window rate limiting, input sanitization, and automated background jobs.
+   * **Persistence & RLS ORM (SQLAlchemy 2.0):** Relational schema supporting SQLite (WAL Mode) locally and PostgreSQL on the cloud, strictly enforcing **Row-Level Security (RLS)** to keep user watchlists completely isolated.
+   * **Machine Learning Engine (Facebook Prophet):** Bayesian time-series regression treating price history as an additive decomposition model of organic depreciation trends, periodic seasonality, and festive sale shocks.
+
+2. **Security-First & Zero-Trust Gating Logic:**
+   * **Gated Landing Page:** Unauthenticated visitors cannot browse or probe product intelligence, search interfaces, or personal dashboards without authenticating.
+   * **Cryptographic Salted OTP Hashing:** 6-digit numeric OTPs for Email and Phone SMS are **never stored in plaintext**. The system applies a SHA-256 hash combined with an application-level secret salt.
+   * **Strict 5-Minute Time-To-Live (TTL = 300s):** Enforced both on the client (live countdown timer) and the server (immediate database hash purging upon expiration).
+   * **Zero Automated Bypass:** Authentication and password recovery require the user to manually enter the 6-digit OTPs, eliminating automated exploitation or fake accounts.
+
+3. **Multi-Store Ingestion & Normalization Logic:**
+   * Uses rotated browser headers (`User-Agent`) to scrape prices across Amazon (canonical ASIN match), Flipkart, Walmart, and eBay.
+   * Implements intelligent accessory keyword filters to eliminate false-positive matches (e.g., distinguishing between a phone case and the actual phone).
+   * Automatically converts international quotes (USD) into standard local base currency (INR ₹) for direct comparison.
+
+4. **Predictive Bayesian Forecasting Logic:**
+   * Fits 180-day historical time-series data using Facebook Prophet:
+     $$y(t) = g(t) + s(t) + h(t) + \epsilon_t$$
+   * Incorporates specialized calendar regressors $h(t)$ for major e-commerce sales (Diwali / Big Billion Days, Prime Day, Great Indian Festival, Black Friday).
+   * Generates probabilistic 80% and 95% Bayesian credible intervals ($\epsilon_t$) rather than naive single-point predictions.
+   * Computes an automated verdict (`BUY NOW` vs. `WAIT`): if current price is within 5% of the projected 15-day low, it flags `BUY NOW`; if a $\ge 10\%$ drop is projected due to an upcoming sale, it flags `WAIT` with an exact target calendar date.
+
+---
+
+### 3. ⚙️ How the Solution Works
+Here is the step-by-step workflow of how PriceSpy Pro executes end-to-end:
+
+```
+[ User Browser ]
+       │
+       ▼ (1. Access Gated App)
+[ Landing Authentication Gateway ] ────► User enters Full Name, Email, Country, State, Phone & Password
+       │
+       ▼ (2. Dual OTP Generation)
+[ Cryptographic Security Dispatch ] ──► Dual 6-digit OTPs (Email + Phone) hashed with SHA-256 + Salt
+       │                                 (Strict 5-minute live visual countdown timer)
+       ▼ (3. Manual Digit Verification)
+[ JWT Bearer Authentication Issued ] ──► Unlocks full platform: Forecaster, Compare Matrix, Watchlist
+       │
+       ├──► [ 4. Search & Compare Matrix ] ──► Aggregates live listings across Amazon, Flipkart, Walmart & eBay
+       │
+       ├──► [ 5. Bayesian ML Forecaster ] ──► Runs Prophet model to predict 7, 15, and 30-day prices with credible bands
+       │                                       and outputs AI Verdict (BUY NOW / WAIT)
+       │
+       └──► [ 6. Watchlist & 24/7 Alerts ] ──► User sets budget threshold; background asyncio worker continuously monitors
+                                               live prices and triggers notifications when prices drop
+```
+
+1. **Gated Landing & Registration:** New visitors land on the authentication screen. Registration captures basic user details (Name, Email, Country, State, Phone Number, Password, and Confirmation).
+2. **Dual Hashed OTP Verification:** The backend generates two 6-digit numeric codes (one for email, one for phone), salted and hashed in the database with a 5-minute expiration timer. The user manually inputs the codes to activate their account and receive an encrypted JWT token.
+3. **Multi-Store Price Aggregation:** The user queries a product. The backend checks in-memory cache or queries the multi-store scraper to retrieve live prices across Amazon, Flipkart, Walmart, and eBay.
+4. **Bayesian ML Inference:** The system passes historical pricing data and festival calendars to Facebook Prophet, outputting future price trajectories, statistical upper/lower bounds, expected savings, and an AI verdict (`BUY NOW` or `WAIT`).
+5. **Watchlist & Autonomous Alerting:** The user saves items to their watchlist with a target price. An asynchronous background scheduler periodically checks market prices. If an item hits the target budget or projected low, the alert status switches to `TRIGGERED` and dispatches notification telemetry.
+6. **Self-Service Password Recovery:** If a password is forgotten, a 6-digit OTP is generated and hashed with a 5-minute validity window. Upon verification, the user sets a new bcrypt-hashed password without relying on arbitrary links.
+
+---
+
+### 4. 📌 Any Assumptions Made
+To deliver reliable real-time intelligence within a cloud-hosted free tier, the system is built upon the following technical and operational assumptions:
+
+1. **Market & Pricing Assumptions:**
+   * **Cyclic Seasonality & Festival Predictability:** Retail pricing is assumed to follow historical seasonal patterns, weekly markdown cadences, and recurring annual shopping events (e.g., Diwali sales in October, Prime Day in July, Black Friday in November).
+   * **Public HTML Accessibility:** Retail listings are assumed to be accessible via standard HTTP requests with randomized user-agent headers without strict Cloudflare/bot challenges.
+   * **Currency Parity Baseline:** International prices (USD on Walmart and eBay) are converted into INR (₹) using a baseline parity exchange rate ($1 \text{ USD} \approx 85 \text{ INR}$) to allow uniform cross-platform comparisons.
+
+2. **User & Identity Assumptions:**
+   * **Unique User Identity:** Every account is uniquely identified by a single email address; email uniqueness is enforced at the database schema level.
+   * **Manual Multi-Factor Verification:** Users are assumed to have active access to their communication channel to inspect their 6-digit OTP and manually input it within the 5-minute countdown window.
+   * **Responsible Alert Thresholds:** Target price thresholds set by users are assumed to be realistic numerical values within reachable market boundaries.
+
+3. **Infrastructure & Hosting Assumptions:**
+   * **Micro-Container Resource Bounds:** The application is engineered to operate smoothly within free-tier container limits (e.g., Render 512 MB RAM limit) by utilizing efficient in-memory caching and lightweight Prophet model evaluation.
+   * **Asynchronous Execution:** Scraper runs and price alert trigger evaluations execute as non-blocking background tasks (`asyncio.create_task`), ensuring zero latency impact on the user interface.
+
+---
+
 ## 🏛️ System Architecture
 
 ```
